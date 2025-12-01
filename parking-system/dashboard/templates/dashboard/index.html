@@ -1,0 +1,585 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Forbes Marshall - Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header Stats -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stats-header">
+                <h2 class="page-title">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Parking Dashboard
+                </h2>
+                <p class="page-subtitle">Real-time parking management system</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="total-slots">{{ total_slots }}</div>
+                    <div class="stat-label">Total Slots</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card occupied">
+                <div class="stat-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="occupied-slots">{{ occupied_slots }}</div>
+                    <div class="stat-label">Occupied</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card available">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="available-slots">{{ available_slots }}</div>
+                    <div class="stat-label">Available</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number" id="occupancy-rate">{{ occupancy_rate }}%</div>
+                    <div class="stat-label">Occupancy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle Type Filter -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="filter-card">
+                <h5 class="filter-title">
+                    <i class="fas fa-filter me-2"></i>
+                    Vehicle Type Filter
+                </h5>
+                <div class="vehicle-filters">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-th-large"></i>
+                        All Vehicles
+                    </button>
+                    <button class="filter-btn" data-filter="cars">
+                        <i class="fas fa-car"></i>
+                        Cars
+                    </button>
+
+                    <button class="filter-btn" data-filter="two-wheeler">
+                        <i class="fas fa-motorcycle"></i>
+                        Two Wheeler
+                    </button>
+                    <button class="filter-btn" data-filter="truck">
+                        <i class="fas fa-shipping-fast"></i>
+                        Truck
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parking Grid -->
+    <div class="row">
+        <div class="col-12">
+            <div class="parking-grid-card">
+                <div class="parking-grid-header">
+                    <h5 class="grid-title">
+                        <i class="fas fa-th me-2"></i>
+                        Parking Layout - Ground Floor
+                    </h5>
+                    <div class="grid-legend">
+                        <span class="legend-item available">
+                            <span class="legend-color"></span>
+                            Available
+                        </span>
+                        <span class="legend-item occupied">
+                            <span class="legend-color"></span>
+                            Occupied
+                        </span>
+                        <span class="legend-item reserved">
+                            <span class="legend-color"></span>
+                            Reserved
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="parking-grid" id="parking-grid">
+                    <!-- Parking slots will be generated dynamically -->
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Loading parking layout...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="activity-card">
+                <h5 class="activity-title">
+                    <i class="fas fa-clock me-2"></i>
+                    Recent Activity
+                </h5>
+                <div class="activity-list" id="recent-activity">
+                    <div class="activity-item">
+                        <div class="activity-icon entry">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Vehicle MH01AB1234 entered slot A15</div>
+                            <div class="activity-time">2 minutes ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon exit">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Vehicle KA05CD5678 left slot B22</div>
+                            <div class="activity-time">5 minutes ago</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon entry">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Vehicle DL07EF9012 entered slot C08</div>
+                            <div class="activity-time">8 minutes ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="quick-stats-card">
+                <h5 class="stats-title">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Quick Stats
+                </h5>
+                <div class="quick-stats-grid">
+                    <div class="quick-stat">
+                        <div class="quick-stat-number">{{ active_sessions }}</div>
+                        <div class="quick-stat-label">Active Sessions</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-number">8h 15m</div>
+                        <div class="quick-stat-label">Avg Duration</div>
+                    </div>
+                    <!-- Revenue display removed (Free parking system) -->
+                    <div class="quick-stat">
+                        <div class="quick-stat-number">97.2%</div>
+                        <div class="quick-stat-label">Efficiency</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-container {
+    padding: 20px 0;
+}
+
+.stats-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--primary-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.success { border-left-color: #28a745; }
+.stat-card.occupied { border-left-color: #dc3545; }
+.stat-card.available { border-left-color: #20c997; }
+.stat-card.info { border-left-color: #17a2b8; }
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-right: 1rem;
+    opacity: 0.8;
+}
+
+.success .stat-icon { color: #28a745; }
+.occupied .stat-icon { color: #dc3545; }
+.available .stat-icon { color: #20c997; }
+.info .stat-icon { color: #17a2b8; }
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-card, .parking-grid-card, .activity-card, .quick-stats-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.vehicle-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+.filter-btn {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.parking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
+    margin-top: 1rem;
+    min-height: 300px;
+}
+
+.parking-slot {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.parking-slot.available {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 2px solid #28a745;
+    color: #155724;
+}
+
+.parking-slot.occupied {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    border: 2px solid #dc3545;
+    color: #721c24;
+}
+
+.parking-slot.reserved {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    border: 2px solid #ffc107;
+    color: #856404;
+}
+
+.parking-slot:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.activity-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 1.2rem;
+}
+
+.activity-icon.entry {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: #28a745;
+}
+
+.activity-icon.exit {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: #dc3545;
+}
+
+.activity-text {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.activity-time {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.quick-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 1rem;
+}
+
+.quick-stat {
+    text-align: center;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+}
+
+.quick-stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.quick-stat-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+
+.grid-legend {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    margin-right: 8px;
+}
+
+.legend-item.available .legend-color { background: #28a745; }
+.legend-item.occupied .legend-color { background: #dc3545; }
+.legend-item.reserved .legend-color { background: #ffc107; }
+
+@media (max-width: 768px) {
+    .stats-header {
+        text-align: left;
+    }
+    
+    .vehicle-filters {
+        justify-content: center;
+    }
+    
+    .grid-legend {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .parking-grid {
+        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+        gap: 6px;
+    }
+    
+    .quick-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize parking grid
+    loadParkingGrid();
+    
+    // Initialize vehicle filters
+    initializeVehicleFilters();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(refreshDashboard, 30000);
+});
+
+function loadParkingGrid() {
+    fetch('/api/parking-data/')
+        .then(response => response.json())
+        .then(data => {
+            renderParkingGrid(data.slots);
+        })
+        .catch(error => {
+            console.error('Error loading parking data:', error);
+            showGridError();
+        });
+}
+
+function renderParkingGrid(slots) {
+    const grid = document.getElementById('parking-grid');
+    grid.innerHTML = '';
+    
+    slots.forEach(slot => {
+        const slotElement = document.createElement('div');
+        slotElement.className = `parking-slot ${slot.status}`;
+        slotElement.textContent = slot.slot_number;
+        slotElement.title = `${slot.slot_number} - ${slot.status.toUpperCase()}`;
+        
+        slotElement.addEventListener('click', () => {
+            showSlotDetails(slot);
+        });
+        
+        grid.appendChild(slotElement);
+    });
+}
+
+function showGridError() {
+    const grid = document.getElementById('parking-grid');
+    grid.innerHTML = `
+        <div class="loading-spinner">
+            <i class="fas fa-exclamation-triangle"></i>
+            Error loading parking data
+        </div>
+    `;
+}
+
+function initializeVehicleFilters() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterBtns.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Filter parking slots
+            const filter = this.dataset.filter;
+            filterParkingSlots(filter);
+        });
+    });
+}
+
+function filterParkingSlots(filter) {
+    const slots = document.querySelectorAll('.parking-slot');
+    
+    slots.forEach(slot => {
+        if (filter === 'all') {
+            slot.style.display = 'flex';
+        } else {
+            // This would need to check vehicle type data
+            // For now, show all slots
+            slot.style.display = 'flex';
+        }
+    });
+}
+
+function showSlotDetails(slot) {
+    // Show modal or details panel with slot information
+    alert(`Slot Details:\nNumber: ${slot.slot_number}\nType: ${slot.slot_type}\nStatus: ${slot.status}`);
+}
+
+function refreshDashboard() {
+    // Refresh stats
+    updateParkingStats();
+    
+    // Refresh parking grid
+    loadParkingGrid();
+    
+    console.log('Dashboard refreshed at', new Date().toLocaleTimeString());
+}
+</script>
+{% endblock %}

@@ -1,0 +1,3 @@
+SELECT status FROM v$instance;
+ALTER DATABASE OPEN;
+EXIT;

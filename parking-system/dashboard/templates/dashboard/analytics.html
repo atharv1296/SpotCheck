@@ -1,0 +1,1323 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Forbes Marshall - Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="p-2">
+    <!-- Page Header -->
+    <!-- Professional Analytics Header -->
+    <div class="analytics-header">
+        <h1 class="analytics-title">
+            <i class="fas fa-chart-line me-3"></i>
+            Forbes Marshall Analytics Dashboard
+        </h1>
+        <p class="text-center text-light mb-0" style="font-size: 1.1rem; opacity: 0.8;">
+            Comprehensive Employee Parking Intelligence & Performance Metrics
+        </p>
+    </div>
+    
+    <!-- Professional Date Range Controls -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h6 class="card-title mb-0">
+                <i class="fas fa-calendar-alt me-2"></i>
+                📅 Analytics Time Period
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="dateRange" id="today" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="today">
+                        <i class="fas fa-clock me-1"></i>Today
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="dateRange" id="week" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="week">
+                        <i class="fas fa-calendar-week me-1"></i>This Week
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="dateRange" id="month" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="month">
+                        <i class="fas fa-calendar me-1"></i>This Month
+                    </label>
+                    
+                    <input type="radio" class="btn-check" name="dateRange" id="custom" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="custom">
+                        <i class="fas fa-cogs me-1"></i>Custom Range
+                    </label>
+                </div>
+                
+                <div class="d-flex align-items-center gap-2">
+                    <div class="loading-spinner" id="loading-indicator" style="display: none;"></div>
+                    <span class="badge bg-success">
+                        <i class="fas fa-sync-alt me-1"></i>Live Data
+                    </span>
+                    <small class="text-light">
+                        Last updated: <span id="last-update">Just now</span>
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Custom Date Range (Hidden by default) -->
+            <div class="row mt-4" id="custom-date-range" style="display: none;">
+                <div class="col-md-4">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-day me-1"></i>From Date
+                    </label>
+                    <input type="date" class="form-control" id="from-date">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-day me-1"></i>To Date
+                    </label>
+                    <input type="date" class="form-control" id="to-date">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">&nbsp;</label>
+                    <div>
+                        <button class="btn btn-outline-primary w-100" id="apply-custom-range">
+                            <i class="fas fa-filter me-2"></i>Apply Custom Range
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Company Parking Metrics -->
+<div class="row mt-2">
+    <div class="col-md-3 mb-3">
+        <div class="card company-metric-card text-white h-100">
+            <div class="card-body text-center">
+                <div class="metric-trend positive">+12%</div>
+                <div class="metric-icon sessions-icon">
+                    <i class="fas fa-users text-white"></i>
+                </div>
+                <h4 class="mb-2" id="total-sessions">1,247</h4>
+                <p class="metric-label mb-0">Employee Visits</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card company-metric-card text-white h-100">
+            <div class="card-body text-center">
+                <div class="metric-trend positive">+5%</div>
+                <div class="metric-icon duration-icon">
+                    <i class="fas fa-clock text-white"></i>
+                </div>
+                <h4 class="mb-2" id="avg-duration">8h 15m</h4>
+                <p class="metric-label mb-0">Avg Park Duration</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card company-metric-card text-white h-100">
+            <div class="card-body text-center">
+                <div class="metric-trend positive">+3%</div>
+                <div class="metric-icon utilization-icon">
+                    <i class="fas fa-chart-pie text-white"></i>
+                </div>
+                <h4 class="mb-2" id="utilization-rate">87%</h4>
+                <p class="metric-label mb-0">Space Utilization</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card company-metric-card text-white h-100">
+            <div class="card-body text-center">
+                <div class="metric-trend negative">-8%</div>
+                <div class="metric-icon security-icon">
+                    <i class="fas fa-shield-alt text-white"></i>
+                </div>
+                <h4 class="mb-2" id="security-events">23</h4>
+                <p class="metric-label mb-0">Security Events</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Charts -->
+<div class="row mt-2">
+    <!-- Hourly Occupancy Chart -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0">📈 Daily Occupancy Patterns</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="hourlyChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Vehicle Type Distribution -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0">🚗 Employee Vehicles</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="vehicleTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Company Analytics Charts -->
+<div class="row mt-2">
+    <!-- Department Wise Usage -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0">🏢 Department Usage</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="departmentChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Peak Hours Analysis -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0">⏰ Peak Usage Hours</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="peakHoursChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Analytics -->
+<div class="row mt-2">
+    <!-- Popular Slots -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0">🏆 Most Used Slots</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Slot</th>
+                                <th>Type</th>
+                                <th>Usage Count</th>
+                                <th>Avg Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody id="popular-slots">
+                            <!-- Data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Parking Efficiency -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0">📊 Efficiency Metrics</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Employees</th>
+                                <th>Avg Duration</th>
+                                <th>Efficiency</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="efficiency-metrics">
+                            <tr>
+                                <td>Engineering</td>
+                                <td>45</td>
+                                <td>8h 30m</td>
+                                <td>92%</td>
+                                <td><span class="badge bg-success">Optimal</span></td>
+                            </tr>
+                            <tr>
+                                <td>Sales</td>
+                                <td>32</td>
+                                <td>7h 45m</td>
+                                <td>88%</td>
+                                <td><span class="badge bg-success">Good</span></td>
+                            </tr>
+                            <tr>
+                                <td>Admin</td>
+                                <td>28</td>
+                                <td>8h 15m</td>
+                                <td>85%</td>
+                                <td><span class="badge bg-warning">Fair</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Company Insights -->
+<div class="row mt-2">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header py-2">
+                <h6 class="card-title mb-0">
+                    💡 Parking Insights
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row" id="insights-container">
+                    <!-- Insights will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Analytics Data</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="export-form">
+                    <div class="mb-3">
+                        <label class="form-label">Export Format</label>
+                        <select class="form-select" id="export-format">
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                            <option value="pdf">PDF Report</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Data Type</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="export-sessions" checked>
+                            <label class="form-check-label">Parking Sessions</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="export-department" checked>
+                            <label class="form-check-label">Department Usage</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="export-efficiency">
+                            <label class="form-check-label">Efficiency Reports</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="export-occupancy">
+                            <label class="form-check-label">Occupancy Statistics</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="export-data">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Button -->
+<div class="position-fixed bottom-0 end-0 p-3">
+    <button class="btn btn-primary btn-lg rounded-circle" data-bs-toggle="modal" data-bs-target="#exportModal">
+        <i class="fas fa-download"></i>
+    </button>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Forbes Marshall Analytics - Clean White Dashboard Theme */
+    body {
+        background: #ffffff !important;
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #0f172a !important;
+    }
+    
+    /* Professional Page Header */
+    .analytics-header {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .analytics-title {
+        color: white !important;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0;
+        text-align: center;
+    }
+    
+    /* Clean Dashboard Metric Cards */
+    .company-metric-card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        color: #0f172a !important;
+    }
+    
+    .company-metric-card:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .company-metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0.1), transparent);
+        transition: left 0.8s ease;
+    }
+    
+    .company-metric-card:hover::before {
+        left: 100%;
+    }
+    
+    .company-metric-card .card-body {
+        padding: 2.5rem 2rem;
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Professional Metric Icons */
+    .metric-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: white !important;
+    }
+    
+    .metric-icon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.2), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .company-metric-card:hover .metric-icon::before {
+        opacity: 1;
+    }
+    
+    .sessions-icon {
+        background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
+    }
+    
+    .duration-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .utilization-icon {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        box-shadow: 0 10px 30px rgba(240, 147, 251, 0.4);
+    }
+    
+    .security-icon {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        box-shadow: 0 10px 30px rgba(252, 182, 159, 0.4);
+    }
+    
+    /* Metric Text Styling */
+    .company-metric-card h4 {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 2.2rem;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        margin: 0.5rem 0;
+        letter-spacing: -0.5px;
+    }
+    
+    .metric-label {
+        color: rgba(255,255,255,0.9);
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+    }
+    
+    /* Animated Trend Indicators */
+    .metric-trend {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        backdrop-filter: blur(10px);
+        animation: trendPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes trendPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .metric-trend.positive {
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(76, 175, 80, 0.1));
+        color: #4caf50;
+        border: 1px solid rgba(76, 175, 80, 0.5);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+    
+    .metric-trend.negative {
+        background: linear-gradient(135deg, rgba(244, 67, 54, 0.3), rgba(244, 67, 54, 0.1));
+        color: #f44336;
+        border: 1px solid rgba(244, 67, 54, 0.5);
+        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+    }
+    
+    /* Professional Cards */
+    .card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+    
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        border-color: rgba(255,255,255,0.2);
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, rgba(126, 211, 33, 0.2) 0%, rgba(126, 211, 33, 0.1) 100%);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px 20px 0 0 !important;
+        padding: 1.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #7ED321, transparent);
+    }
+    
+    .card-title {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    /* Professional Table Styling */
+    .table {
+        color: rgba(255,255,255,0.95);
+        background: transparent;
+    }
+    
+    .table th {
+        border-color: rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.9);
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        background: rgba(255,255,255,0.05);
+    }
+    
+    .table td {
+        border-color: rgba(255,255,255,0.1);
+        font-size: 0.95rem;
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(126, 211, 33, 0.1);
+        transform: scale(1.01);
+    }
+    
+    /* Professional Badges */
+    .badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-success {
+        background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        color: white;
+        box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+    }
+    
+    .badge-warning {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
+        box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
+    }
+    
+    /* Professional Buttons */
+    .btn {
+        border-radius: 16px;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid rgba(126, 211, 33, 0.5);
+        color: #7ED321;
+        background: rgba(126, 211, 33, 0.1);
+    }
+    
+    .btn-outline-primary:hover,
+    .btn-check:checked + .btn-outline-primary {
+        background: linear-gradient(135deg, #7ED321, #65B01A);
+        border-color: #7ED321;
+        color: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(126, 211, 33, 0.4);
+    }
+    
+    /* Professional Export Button */
+    .btn-lg.rounded-circle {
+        width: 70px;
+        height: 70px;
+        border-radius: 50% !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        font-size: 1.3rem;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-lg.rounded-circle::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.2), transparent);
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .btn-lg.rounded-circle:hover {
+        transform: scale(1.1) translateY(-2px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+    }
+    
+    .btn-lg.rounded-circle:hover::before {
+        opacity: 1;
+    }
+    
+    /* Date Range Controls */
+    .form-control {
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 12px;
+        color: #ffffff;
+        backdrop-filter: blur(10px);
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control:focus {
+        background: rgba(255,255,255,0.15);
+        border-color: #7ED321;
+        color: #ffffff;
+        box-shadow: 0 0 0 3px rgba(126, 211, 33, 0.2);
+    }
+    
+    .form-control::placeholder {
+        color: rgba(255,255,255,0.6);
+    }
+    
+    .form-label {
+        color: rgba(255,255,255,0.9);
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .analytics-title {
+            font-size: 2rem;
+        }
+        
+        .analytics-header {
+            padding: 1.5rem;
+        }
+        
+        .company-metric-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .company-metric-card h4 {
+            font-size: 1.8rem;
+        }
+        
+        .metric-trend {
+            position: static;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+    }
+    
+    /* Chart Container Enhancements */
+    .chart-container {
+        background: rgba(255,255,255,0.05);
+        border-radius: 16px;
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    /* Professional Loading Animation */
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255,255,255,0.1);
+        border-top: 3px solid #7ED321;
+        border-radius: 50%;
+        animation: professionalSpin 1s linear infinite;
+        margin: 2rem auto;
+    }
+    
+    @keyframes professionalSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* COMPREHENSIVE TEXT VISIBILITY FIXES FOR WHITE THEME */
+    /* Override any white text to be dark on white background */
+    h1, h2, h3, h4, h5, h6,
+    p, span, div, label, li, td, th, small,
+    .card-body, .card-body *,
+    .metric-label, .chart-title,
+    .text-center, .text-end, .text-start {
+        color: #0f172a !important;
+    }
+    
+    /* Metric card text overrides */
+    .company-metric-card h4 {
+        color: #0f172a !important;
+        font-weight: 700;
+        font-size: 2.2rem;
+        text-shadow: none !important;
+        margin: 0.5rem 0;
+        letter-spacing: -0.5px;
+    }
+    
+    .metric-label {
+        color: #475569 !important;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+    }
+    
+    /* Ensure all text in analytics is visible */
+    .analytics-header p {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Card headers and special elements */
+    .card-header, .card-header * {
+        color: #0f172a !important;
+    }
+    
+    /* Chart and data visualization text */
+    .chart-container, .chart-container *,
+    .data-table, .data-table * {
+        color: #0f172a !important;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let charts = {};
+    let currentDateRange = 'today';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCharts();
+        loadAnalyticsData();
+        initializeProfessionalAnimations();
+        
+        // Event listeners
+        document.querySelectorAll('input[name="dateRange"]').forEach(radio => {
+            radio.addEventListener('change', handleDateRangeChange);
+        });
+        
+        document.getElementById('apply-custom-range').addEventListener('click', applyCustomRange);
+        document.getElementById('export-data').addEventListener('click', exportData);
+        
+        // Auto-refresh every 5 minutes with professional loading
+        setInterval(() => {
+            showLoadingState();
+            loadAnalyticsData();
+            setTimeout(hideLoadingState, 1000);
+        }, 300000);
+        
+        // Update timestamps
+        updateTimestamp();
+        setInterval(updateTimestamp, 30000);
+    });
+    
+    function initializeProfessionalAnimations() {
+        // Professional entrance animations
+        const cards = document.querySelectorAll('.company-metric-card, .card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+        
+        // Enhanced hover effects
+        const metricCards = document.querySelectorAll('.company-metric-card');
+        metricCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+                this.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)';
+                this.style.borderColor = 'rgba(255,255,255,0.3)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)';
+                this.style.borderColor = 'rgba(255,255,255,0.2)';
+            });
+        });
+        
+        // Floating export button
+        const exportBtn = document.querySelector('.btn-lg.rounded-circle');
+        if (exportBtn) {
+            let floatDirection = 1;
+            setInterval(() => {
+                exportBtn.style.transform = `translateY(${floatDirection * 2}px)`;
+                floatDirection *= -1;
+            }, 2000);
+        }
+    }
+    
+    function updateTimestamp() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { 
+            hour12: true, 
+            hour: 'numeric', 
+            minute: '2-digit' 
+        });
+        const updateElement = document.getElementById('last-update');
+        if (updateElement) {
+            updateElement.textContent = timeString;
+        }
+    }
+    
+    function showLoadingState() {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'block';
+        }
+        
+        // Professional loading effect
+        const cards = document.querySelectorAll('.company-metric-card');
+        cards.forEach(card => {
+            card.style.opacity = '0.7';
+            card.style.transform = 'scale(0.98)';
+        });
+    }
+    
+    function hideLoadingState() {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        const cards = document.querySelectorAll('.company-metric-card');
+        cards.forEach(card => {
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
+        });
+    }
+    
+    function initializeCharts() {
+        // Hourly Occupancy Chart
+        const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+        charts.hourly = new Chart(hourlyCtx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                datasets: [{
+                    label: 'Occupancy Rate (%)',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+        
+        // Vehicle Type Chart
+        const vehicleCtx = document.getElementById('vehicleTypeChart').getContext('2d');
+        charts.vehicleType = new Chart(vehicleCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cars', 'Two Wheeler', 'Other'],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+        
+        // Revenue Chart - Removed (Free parking system)
+        
+        // Peak Hours Chart
+        const peakCtx = document.getElementById('peakHoursChart').getContext('2d');
+        charts.peakHours = new Chart(peakCtx, {
+            type: 'bar',
+            data: {
+                labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                datasets: [{
+                    label: 'Entry Count',
+                    data: [],
+                    backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+    
+    function handleDateRangeChange(event) {
+        currentDateRange = event.target.id;
+        
+        if (currentDateRange === 'custom') {
+            document.getElementById('custom-date-range').style.display = 'block';
+        } else {
+            document.getElementById('custom-date-range').style.display = 'none';
+            loadAnalyticsData();
+        }
+    }
+    
+    function applyCustomRange() {
+        const fromDate = document.getElementById('from-date').value;
+        const toDate = document.getElementById('to-date').value;
+        
+        if (fromDate && toDate) {
+            loadAnalyticsData(fromDate, toDate);
+        }
+    }
+    
+    function loadAnalyticsData(fromDate = null, toDate = null) {
+        let url = `/api/analytics/?range=${currentDateRange}`;
+        
+        if (fromDate && toDate) {
+            url = `/api/analytics/?from_date=${fromDate}&to_date=${toDate}`;
+        }
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                updateAnalyticsDashboard(data);
+            })
+            .catch(error => {
+                console.error('Error loading analytics data:', error);
+            });
+    }
+    
+    function updateAnalyticsDashboard(data) {
+        // Update summary cards
+        document.getElementById('total-sessions').textContent = data.summary.total_sessions;
+        document.getElementById('avg-duration').textContent = data.summary.avg_duration;
+        // Revenue and fines display removed (Free parking system)
+        
+        // Update charts
+        updateChartData(charts.hourly, data.hourly_occupancy.labels, data.hourly_occupancy.data);
+        updateChartData(charts.vehicleType, data.vehicle_distribution.labels, data.vehicle_distribution.data);
+        // Revenue chart update removed (Free parking system)
+        updateChartData(charts.peakHours, data.peak_hours.labels, data.peak_hours.data);
+        
+        // Update tables
+        updatePopularSlots(data.popular_slots);
+        updateRecentViolations(data.recent_violations);
+        
+        // Update insights
+        updateInsights(data.insights);
+    }
+    
+    function updateChartData(chart, labels, data) {
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = data;
+        chart.update();
+    }
+    
+    function updatePopularSlots(slots) {
+        const tbody = document.getElementById('popular-slots');
+        tbody.innerHTML = '';
+        
+        slots.forEach(slot => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${slot.slot_number}</td>
+                <td><span class="badge bg-secondary">${slot.slot_type}</span></td>
+                <td>${slot.usage_count}</td>
+                <td>${slot.avg_duration}</td>
+            `;
+        });
+    }
+    
+    function updateRecentViolations(violations) {
+        const tbody = document.getElementById('recent-violations');
+        tbody.innerHTML = '';
+        
+        violations.forEach(violation => {
+            const row = tbody.insertRow();
+            const statusBadge = violation.status === 'Paid' ? 'bg-success' : 
+                               violation.status === 'Issued' ? 'bg-warning' : 'bg-secondary';
+            
+            row.innerHTML = `
+                <td>${new Date(violation.date).toLocaleDateString()}</td>
+                <td>${violation.slot_number}</td>
+                <td>${violation.violation_type}</td>
+                <!-- Fine amount removed (Free parking system) -->
+                <td><span class="badge ${statusBadge}">${violation.status}</span></td>
+            `;
+        });
+    }
+    
+    function updateInsights(insights) {
+        const container = document.getElementById('insights-container');
+        container.innerHTML = '';
+        
+        insights.forEach(insight => {
+            const insightCard = document.createElement('div');
+            insightCard.className = 'col-md-4 mb-3';
+            
+            const iconClass = insight.type === 'warning' ? 'fas fa-exclamation-triangle text-warning' :
+                             insight.type === 'success' ? 'fas fa-check-circle text-success' :
+                             'fas fa-info-circle text-info';
+            
+            insightCard.innerHTML = `
+                <div class="card border-left-${insight.type}">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="${iconClass} fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1">${insight.title}</h6>
+                                <p class="text-muted mb-0">${insight.description}</p>
+                                ${insight.recommendation ? `<small class="text-primary">💡 ${insight.recommendation}</small>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(insightCard);
+        });
+    }
+    
+    async function exportData() {
+        const format = document.getElementById('export-format').value;
+        const exportTypes = [];
+
+        if (document.getElementById('export-sessions').checked) exportTypes.push('sessions');
+        // Revenue export option removed (Free parking system)
+        if (document.getElementById('export-violations') && document.getElementById('export-violations').checked) exportTypes.push('violations');
+        if (document.getElementById('export-occupancy') && document.getElementById('export-occupancy').checked) exportTypes.push('occupancy');
+
+        const params = new URLSearchParams({
+            format: format,
+            types: exportTypes.join(','),
+            range: currentDateRange
+        });
+
+        // Add custom date range if applicable
+        if (currentDateRange === 'custom') {
+            const fromDate = document.getElementById('from-date').value;
+            const toDate = document.getElementById('to-date').value;
+            if (fromDate && toDate) {
+                params.append('from_date', fromDate);
+                params.append('to_date', toDate);
+            }
+        }
+
+        // Client-side PDF export: fetch analytics JSON, capture canvases, render printable window
+        if (format === 'pdf') {
+            const apiUrl = `/api/analytics-data/?${params.toString()}`;
+            try {
+                const resp = await fetch(apiUrl, { credentials: 'same-origin' });
+                if (!resp.ok) {
+                    const txt = await resp.text();
+                    try { const j = JSON.parse(txt); showToast('danger','Export Error', j.error || j.message || txt); }
+                    catch(e) { showToast('danger','Export Error', txt || `HTTP ${resp.status}`); }
+                    return;
+                }
+                const data = await resp.json();
+
+                // Capture the chart canvases
+                const chartIds = ['occupancyChart','vehicleTypeChart','peakHoursChart','durationChart'];
+                const images = {};
+                chartIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && el.toDataURL) {
+                        try { images[id] = el.toDataURL('image/png'); } catch(e) { images[id] = null; }
+                    } else if (el && el.querySelector && el.querySelector('canvas')) {
+                        const c = el.querySelector('canvas');
+                        try { images[id] = c.toDataURL('image/png'); } catch(e) { images[id] = null; }
+                    } else {
+                        images[id] = null;
+                    }
+                });
+
+                exportToPDF(data, images, params);
+            } catch (err) {
+                showToast('danger','Export Error', err.message || String(err));
+            } finally {
+                try { bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide(); } catch(e){}
+            }
+            return;
+        }
+
+        // Fallback to server-generated file (CSV/PDF)
+        const url = `/api/analytics/export/?${params.toString()}`;
+
+        try {
+            const resp = await fetch(url, { credentials: 'same-origin' });
+            const contentType = resp.headers.get('content-type') || '';
+
+            if (!resp.ok) {
+                const text = await resp.text();
+                try { const j = JSON.parse(text); showToast('danger', 'Export Error', j.error || j.message || JSON.stringify(j)); }
+                catch(e) { showToast('danger', 'Export Error', text || `HTTP ${resp.status}`); }
+                return;
+            }
+
+            if (contentType.includes('application/pdf') || contentType.includes('text/csv') || contentType.includes('application/octet-stream')) {
+                const blob = await resp.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const ext = format === 'pdf' ? 'pdf' : 'csv';
+                const filename = `analytics_${currentDateRange}_${new Date().toISOString().split('T')[0]}.${ext}`;
+                a.href = blobUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(blobUrl);
+                showToast('success', 'Export Complete', `Data exported as ${format.toUpperCase()} successfully`);
+            } else {
+                const text = await resp.text();
+                showToast('danger', 'Export Error', text || 'Unknown response type');
+            }
+        } catch (err) {
+            showToast('danger', 'Export Error', err.message || String(err));
+        } finally {
+            try { bootstrap.Modal.getInstance(document.getElementById('exportModal')).hide(); } catch(e){}
+        }
+    }
+
+    function exportToPDF(data, images, params) {
+        const title = `Analytics Report: ${data.date_range.start} → ${data.date_range.end}`;
+        const css = `
+            body{font-family: Arial, Helvetica, sans-serif; color:#111; padding:20px}
+            .header{display:flex;justify-content:space-between;align-items:center}
+            .metrics{display:flex;gap:12px;margin-top:12px}
+            .metric{border:1px solid #ddd;padding:8px;border-radius:6px}
+            .chart{margin-top:16px}
+            img.chart-img{width:100%;max-width:900px;height:auto;border:1px solid #e6e6e6;padding:6px;background:white}
+            .print-btn{position:fixed;top:12px;right:12px;padding:8px 12px;background:#003366;color:#fff;border:none;border-radius:4px;cursor:pointer;z-index:9999}
+            @media print { .print-btn{display:none} img.chart-img{max-width:100%} }
+        `;
+
+        let metricsHtml = '';
+        if (data.metrics) {
+            metricsHtml += '<div class="metrics">';
+            for (const [k,v] of Object.entries(data.metrics)) {
+                metricsHtml += `<div class="metric"><strong>${k.replace('_',' ')}</strong><div>${v}</div></div>`;
+            }
+            metricsHtml += '</div>';
+        }
+
+        let chartsHtml = '';
+        const order = ['occupancyChart','vehicleTypeChart','peakHoursChart','durationChart'];
+        order.forEach(id => {
+            if (images[id]) {
+                chartsHtml += `<div class="chart"><h4>${id}</h4><img class="chart-img" src="${images[id]}"/></div>`;
+            } else {
+                chartsHtml += `<div class="chart"><h4>${id}</h4><p><em>Chart not available (canvas may be tainted or not rendered)</em></p></div>`;
+            }
+        });
+
+        const autoPrintScript = `
+            <script>
+            (function(){
+                function readyToPrint(){
+                    try{ window.focus(); }catch(e){}
+                    setTimeout(function(){ try{ window.print(); }catch(e){} }, 200);
+                }
+
+                // Wait for all images to finish loading (or error)
+                var imgs = Array.from(document.getElementsByTagName('img'));
+                if (!imgs || imgs.length === 0) {
+                    // nothing to wait for
+                    readyToPrint();
+                    return;
+                }
+                var remaining = imgs.length;
+                imgs.forEach(function(img){
+                    if (img.complete) {
+                        remaining -= 1;
+                    } else {
+                        img.addEventListener('load', function(){ remaining -= 1; if (remaining <= 0) readyToPrint(); });
+                        img.addEventListener('error', function(){ remaining -= 1; if (remaining <= 0) readyToPrint(); });
+                    }
+                });
+                if (remaining <= 0) readyToPrint();
+            })();
+            <\/script>`;
+
+        const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>${css}</style></head><body>
+            <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+            <div class="header"><h1>${title}</h1><div>${new Date().toLocaleString()}</div></div>
+            ${metricsHtml}
+            <div class="charts">${chartsHtml}</div>
+            <hr/>
+            <div>Generated by SpotCheck Analytics</div>
+            ${autoPrintScript}
+        </body></html>`;
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            showToast('warning','Popup Blocked','Unable to open print window. Please allow popups for this site and try again.');
+            return;
+        }
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+    }
+</script>
+{% endblock %}

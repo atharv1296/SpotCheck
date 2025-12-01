@@ -1,0 +1,522 @@
+{% extends 'dashboard/professional_base.html' %}
+{% load static %}
+
+{% block title %}Driver Applications Dashboard - Forbes Marshall{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    @media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .fm-stat-card {
+        background: linear-gradient(135deg, var(--fm-white) 0%, var(--fm-light-gray) 100%);
+        border-radius: var(--fm-border-radius-lg);
+        padding: 1.25rem;
+        text-align: center;
+        box-shadow: var(--fm-shadow-lg);
+        border: 1px solid var(--fm-border-color);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        min-height: auto;
+    }
+    
+    .fm-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--fm-shadow-xl);
+    }
+    
+    .fm-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--fm-primary) 0%, var(--fm-secondary) 100%);
+    }
+    
+    .fm-stat-card.pending::before { background: linear-gradient(90deg, #ffc107 0%, #ffb300 100%); }
+    .fm-stat-card.approved::before { background: linear-gradient(90deg, #28a745 0%, #20c997 100%); }
+    .fm-stat-card.rejected::before { background: linear-gradient(90deg, #dc3545 0%, #e74c3c 100%); }
+    .fm-stat-card.under-review::before { background: linear-gradient(90deg, #17a2b8 0%, #3498db 100%); }
+    .fm-stat-card.total::before { background: linear-gradient(90deg, #6f42c1 0%, #9b59b6 100%); }
+    .fm-stat-card.today::before { background: linear-gradient(90deg, #fd7e14 0%, #f39c12 100%); }
+    
+    .fm-stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.8;
+        color: var(--fm-primary);
+    }
+    
+    .fm-stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--fm-dark);
+        margin-bottom: 0.25rem;
+        line-height: 1;
+        font-family: var(--fm-font-family-sans);
+    }
+    
+    .fm-stat-label {
+        color: var(--fm-text-muted);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .fm-stat-description {
+        color: var(--fm-text-light);
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
+    
+    .fm-fade-in {
+        animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .applications-container {
+        background: var(--fm-white);
+        border-radius: var(--fm-border-radius-lg);
+        box-shadow: var(--fm-shadow-lg);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .applications-section {
+        padding: 2rem;
+    }
+    
+    .filters-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .application-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .application-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    
+    .application-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .application-id {
+        font-family: monospace;
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .application-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .detail-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+    }
+    
+
+    
+    .bulk-actions {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .search-results-info {
+        background: #e3f2fd;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="fm-page-header">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h1 class="fm-page-title">Large Vehicle Requests</h1>
+            <p class="fm-page-subtitle">Manage external driver applications and entry permits</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" onclick="refreshStats()">
+                <i class="fas fa-sync-alt me-1"></i> Refresh
+            </button>
+            <a href="{% url 'driver_applications:apply_entry' %}" class="btn btn-primary btn-sm" target="_blank">
+                <i class="fas fa-external-link-alt me-1"></i> Public Form
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Dashboard -->
+<div class="dashboard-grid">
+    <div class="fm-stat-card total fm-fade-in">
+        <div class="fm-stat-icon">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="fm-stat-value">{{ stats.total }}</div>
+        <div class="fm-stat-label">Total Applications</div>
+        <div class="fm-stat-description">All driver applications</div>
+    </div>
+    
+    <div class="fm-stat-card pending fm-fade-in" style="animation-delay: 0.1s;">
+        <div class="fm-stat-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="fm-stat-value">{{ stats.pending }}</div>
+        <div class="fm-stat-label">Pending Review</div>
+        <div class="fm-stat-description">Awaiting initial review</div>
+    </div>
+    
+    <div class="fm-stat-card under-review fm-fade-in" style="animation-delay: 0.2s;">
+        <div class="fm-stat-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="fm-stat-value">{{ stats.under_review }}</div>
+        <div class="fm-stat-label">Under Review</div>
+        <div class="fm-stat-description">Currently being processed</div>
+    </div>
+    
+    <div class="fm-stat-card approved fm-fade-in" style="animation-delay: 0.3s;">
+        <div class="fm-stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="fm-stat-value">{{ stats.approved }}</div>
+        <div class="fm-stat-label">Approved</div>
+        <div class="fm-stat-description">Ready for entry</div>
+    </div>
+    
+    <div class="fm-stat-card rejected fm-fade-in" style="animation-delay: 0.4s;">
+        <div class="fm-stat-icon">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="fm-stat-value">{{ stats.rejected }}</div>
+        <div class="fm-stat-label">Rejected</div>
+        <div class="fm-stat-description">Applications denied</div>
+    </div>
+    
+    <div class="fm-stat-card today fm-fade-in" style="animation-delay: 0.5s;">
+        <div class="fm-stat-icon">
+            <i class="fas fa-calendar-day"></i>
+        </div>
+        <div class="fm-stat-value">{{ stats.today_applications }}</div>
+        <div class="fm-stat-label">Today's Applications</div>
+        <div class="fm-stat-description">New applications today</div>
+    </div>
+</div>
+
+    <!-- Search and Filters -->
+    <div class="applications-container">
+        <div class="applications-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                {{ search_form.search_query }}
+            </div>
+            <div class="col-md-3">
+                {{ search_form.status }}
+            </div>
+            <div class="col-md-2">
+                {{ search_form.material_type }}
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+            {% if request.GET %}
+            <div class="col-12">
+                <a href="{% url 'driver_applications:applications_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times me-2"></i>Clear Filters
+                </a>
+            </div>
+            {% endif %}
+        </form>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="applications-container">
+        <div class="applications-section">
+        <form method="post" action="{% url 'driver_applications:bulk_action' %}" id="bulk-form">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <label for="select-all" class="form-check-label me-3">
+                        <input type="checkbox" id="select-all" class="form-check-input"> Select All
+                    </label>
+                    <span id="selected-count" class="text-muted">0 selected</span>
+                </div>
+                <div>
+                    <button type="submit" name="action" value="approve" class="btn btn-success btn-sm me-2" disabled id="approve-btn">
+                        <i class="fas fa-check me-1"></i>Approve
+                    </button>
+                    <button type="submit" name="action" value="under_review" class="btn btn-info btn-sm me-2" disabled id="review-btn">
+                        <i class="fas fa-eye me-1"></i>Under Review
+                    </button>
+                    <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm" disabled id="reject-btn">
+                        <i class="fas fa-times me-1"></i>Reject
+                    </button>
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+
+    <!-- Search Results Info -->
+    {% if request.GET.search_query %}
+    <div class="search-results-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Showing results for "<strong>{{ request.GET.search_query }}</strong>" - {{ applications.paginator.count }} applications found
+    </div>
+    {% endif %}
+
+    <!-- Applications List -->
+    <div class="applications-list">
+        {% for application in applications %}
+        <div class="application-card">
+            <div class="application-header">
+                <div class="d-flex align-items-center">
+                    <input type="checkbox" name="application_ids" value="{{ application.application_id }}" class="form-check-input me-3 application-checkbox" form="bulk-form">
+                    <div>
+                        <h5 class="mb-1">{{ application.driver_name }}</h5>
+                        <div class="application-id">ID: {{ application.application_id }}</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-{% if application.status == 'pending' %}warning{% elif application.status == 'approved' %}success{% elif application.status == 'rejected' %}danger{% elif application.status == 'under_review' %}info{% else %}secondary{% endif %}">
+                        {{ application.get_status_display }}
+                    </span>
+                    <a href="{% url 'driver_applications:application_detail' application.application_id %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>View
+                    </a>
+                </div>
+            </div>
+            
+            <div class="application-details">
+                <div class="detail-item">
+                    <div class="detail-label">Vehicle</div>
+                    <div class="detail-value">{{ application.vehicle_number }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Company</div>
+                    <div class="detail-value">{{ application.source_company_name }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Material</div>
+                    <div class="detail-value">{{ application.get_material_type_display }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Entry Date</div>
+                    <div class="detail-value">{{ application.requested_entry_date|date:"M d, Y" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Entry Time</div>
+                    <div class="detail-value">{{ application.requested_entry_time|time:"H:i" }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Applied</div>
+                    <div class="detail-value">{{ application.created_at|timesince }} ago</div>
+                </div>
+            </div>
+            
+            {% if application.material_description %}
+            <div class="mt-2">
+                <small class="text-muted">
+                    <strong>Purpose:</strong> {{ application.material_description|truncatechars:100 }}
+                </small>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+            <i class="fas fa-clipboard text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 text-muted">No Applications Found</h4>
+            <p class="text-muted">
+                {% if request.GET %}
+                    No applications match your search criteria.
+                {% else %}
+                    No driver applications have been submitted yet.
+                {% endif %}
+            </p>
+            <a href="{% url 'driver_applications:apply_entry' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create First Application
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if applications.has_other_pages %}
+    <nav aria-label="Applications pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if applications.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ applications.previous_page_number }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% for num in applications.paginator.page_range %}
+                {% if applications.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > applications.number|add:'-3' and num < applications.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if applications.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ applications.next_page_number }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const applicationCheckboxes = document.querySelectorAll('.application-checkbox');
+    const selectedCountSpan = document.getElementById('selected-count');
+    const bulkActionButtons = document.querySelectorAll('#approve-btn, #review-btn, #reject-btn');
+    
+    function updateSelectedCount() {
+        const checkedBoxes = document.querySelectorAll('.application-checkbox:checked');
+        const count = checkedBoxes.length;
+        
+        selectedCountSpan.textContent = `${count} selected`;
+        
+        // Enable/disable bulk action buttons
+        bulkActionButtons.forEach(btn => {
+            btn.disabled = count === 0;
+        });
+    }
+    
+    // Select all functionality
+    selectAllCheckbox.addEventListener('change', function() {
+        applicationCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateSelectedCount();
+    });
+    
+    // Individual checkbox functionality
+    applicationCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelectedCount();
+            
+            // Update select all checkbox state
+            const checkedCount = document.querySelectorAll('.application-checkbox:checked').length;
+            selectAllCheckbox.checked = checkedCount === applicationCheckboxes.length;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < applicationCheckboxes.length;
+        });
+    });
+    
+    // Confirm bulk actions
+    bulkActionButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const action = this.value;
+            const count = document.querySelectorAll('.application-checkbox:checked').length;
+            
+            let message = '';
+            switch(action) {
+                case 'approve':
+                    message = `Are you sure you want to approve ${count} application(s)?`;
+                    break;
+                case 'reject':
+                    message = `Are you sure you want to reject ${count} application(s)?`;
+                    break;
+                case 'under_review':
+                    message = `Are you sure you want to mark ${count} application(s) as under review?`;
+                    break;
+            }
+            
+            if (!confirm(message)) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Auto-refresh every 30 seconds
+    setInterval(function() {
+        // Only refresh if we're on the first page and no filters are applied
+        if (window.location.search === '' || window.location.search === '?page=1') {
+            location.reload();
+        }
+    }, 30000);
+});
+</script>
+{% endblock %}

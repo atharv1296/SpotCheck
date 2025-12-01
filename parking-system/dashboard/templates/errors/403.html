@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ error_code }} - {{ error_title }} | Forbes Marshall SpotCheck</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #003366, #ff6600);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .error-icon {
+            font-size: 5rem;
+            color: #ffc107;
+            margin-bottom: 1.5rem;
+        }
+        
+        .error-code {
+            font-size: 6rem;
+            font-weight: 700;
+            color: #ff6600;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .action-buttons {
+            margin-top: 2rem;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #003366, #004080);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 51, 102, 0.3);
+            color: white;
+        }
+        
+        .btn-secondary-custom {
+            background: linear-gradient(135deg, #ff6600, #ff8533);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 102, 0, 0.3);
+            color: white;
+        }
+        
+        .support-info {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            color: #888;
+        }
+        
+        .fm-logo {
+            margin-bottom: 1rem;
+        }
+        
+        .permission-info {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .permission-info h5 {
+            color: #856404;
+            margin-bottom: 1rem;
+        }
+        
+        .permission-info ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        
+        .permission-info li {
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .error-card {
+                padding: 2rem;
+            }
+            
+            .error-code {
+                font-size: 4rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+            
+            .btn-primary-custom,
+            .btn-secondary-custom {
+                display: block;
+                margin: 10px 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="fm-logo">
+                <img src="/static/images/forbes-marshall-logo.svg" alt="Forbes Marshall" style="height: 60px;" onerror="this.style.display='none'">
+            </div>
+            
+            <div class="error-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            
+            <div class="error-code">{{ error_code }}</div>
+            <h1 class="error-title">{{ error_title }}</h1>
+            <p class="error-message">{{ error_message }}</p>
+            
+            <div class="permission-info">
+                <h5><i class="fas fa-info-circle"></i> What you can do:</h5>
+                <ul>
+                    <li>Contact your system administrator for access</li>
+                    <li>Verify you are logged in with the correct account</li>
+                    <li>Check if your user role has the required permissions</li>
+                    <li>Return to the dashboard and try accessing a different section</li>
+                </ul>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/" class="btn-primary-custom">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+                <a href="/admin/login/" class="btn-secondary-custom">
+                    <i class="fas fa-sign-in-alt"></i> Admin Login
+                </a>
+            </div>
+            
+            <div class="support-info">
+                <p><strong>Forbes Marshall SpotCheck v2.0.0</strong></p>
+                <p>Need access? Contact your administrator or support at <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+                <p><small>Access denied at {{ "now"|date:"Y-m-d H:i:s" }}</small></p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-redirect to login if not authenticated
+        setTimeout(() => {
+            if (confirm('Would you like to go to the login page?')) {
+                window.location.href = '/admin/login/';
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,741 @@
+{% extends 'dashboard/professional_base.html' %}
+{% load static %}
+
+{% block title %}Maintenance Management - Forbes Marshall SpotCheck{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    /* Parking Layout Container */
+    .parking-layout-container {
+        background: white;
+        border-radius: var(--fm-radius-xl);
+        box-shadow: var(--fm-shadow-md);
+        overflow: hidden;
+    }
+    
+    .parking-section {
+        padding: 2rem;
+        border-bottom: 1px solid var(--fm-border-light);
+    }
+    
+    .parking-section:last-child {
+        border-bottom: none;
+    }
+    
+    /* Section Header */
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--fm-gray-800);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+    }
+    
+    .maintenance-icon { background: var(--fm-warning); }
+    .available-icon { background: var(--fm-success); }
+    .out-icon { background: var(--fm-gray-500); }
+    
+    .section-status {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .status-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 3px;
+        background: #f1f3f4;
+        color: #555;
+        font-weight: 400;
+        font-size: 0.85rem;
+    }
+    
+    /* Bulk Actions Card */
+    .bulk-actions-card {
+        background: white;
+        border-radius: var(--fm-radius-xl);
+        box-shadow: var(--fm-shadow-md);
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .bulk-actions-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .bulk-actions-header h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--fm-gray-800);
+        margin: 0;
+    }
+    
+    .bulk-actions-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .bulk-actions-group input {
+        flex: 1;
+        min-width: 300px;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--fm-border-medium);
+        border-radius: 3px;
+        font-size: 0.9rem;
+        transition: border-color var(--fm-transition-fast);
+    }
+    
+    .bulk-actions-group input:focus {
+        outline: none;
+        border-color: var(--fm-primary);
+    }
+    
+    .bulk-action-btn {
+        padding: 0.75rem 1.5rem;
+        border: 1px solid var(--fm-border-medium);
+        border-radius: 3px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all var(--fm-transition-fast);
+        background: white;
+        color: var(--fm-gray-700);
+    }
+    
+    .bulk-action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--fm-shadow-sm);
+    }
+    
+    .bulk-action-btn.maintenance-btn {
+        background: linear-gradient(135deg, var(--fm-warning), var(--fm-warning-light));
+        color: white;
+        border-color: var(--fm-warning);
+    }
+    
+    .bulk-action-btn.maintenance-btn:hover {
+        background: var(--fm-warning);
+        box-shadow: var(--fm-shadow-md);
+    }
+    
+    .bulk-action-btn.available-btn {
+        background: linear-gradient(135deg, var(--fm-success), var(--fm-success-light));
+        color: white;
+        border-color: var(--fm-success);
+    }
+    
+    .bulk-action-btn.available-btn:hover {
+        background: var(--fm-success);
+        box-shadow: var(--fm-shadow-md);
+    }
+    
+    /* Parking Grid */
+    .parking-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+        padding-bottom: 3rem;
+    }
+    
+    .parking-slot {
+        aspect-ratio: 1;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--fm-transition-fast);
+        position: relative;
+        background: white;
+        z-index: 1;
+    }
+    
+    .parking-slot::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        border-radius: 3px 3px 0 0;
+    }
+    
+    .parking-slot.available {
+        border-color: var(--fm-success);
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    }
+    
+    .parking-slot.available::before {
+        background: linear-gradient(90deg, var(--fm-success), var(--fm-success-light));
+    }
+    
+    .parking-slot.available:hover {
+        transform: scale(1.05);
+        box-shadow: var(--fm-shadow-lg);
+        border-color: var(--fm-success-dark);
+    }
+    
+    .parking-slot.occupied {
+        border-color: var(--fm-danger);
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        cursor: not-allowed;
+        opacity: 0.8;
+    }
+    
+    .parking-slot.occupied::before {
+        background: linear-gradient(90deg, var(--fm-danger), var(--fm-danger-light));
+    }
+    
+    .parking-slot.maintenance {
+        border-color: var(--fm-warning);
+        background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    }
+    
+    .parking-slot.maintenance::before {
+        background: linear-gradient(90deg, var(--fm-warning), var(--fm-warning-light));
+    }
+    
+    .parking-slot.maintenance:hover {
+        transform: scale(1.05);
+        box-shadow: var(--fm-shadow-lg);
+        border-color: var(--fm-warning);
+    }
+    
+    .slot-number {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+        text-align: center;
+    }
+    
+    .slot-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+        text-align: center;
+    }
+    
+    .slot-status {
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .available .slot-number,
+    .available .slot-status {
+        color: var(--fm-success-dark);
+    }
+    
+    .occupied .slot-number,
+    .occupied .slot-status {
+        color: var(--fm-danger);
+    }
+    
+    .maintenance .slot-number,
+    .maintenance .slot-status {
+        color: var(--fm-warning);
+    }
+    
+    /* Slot Actions Dropdown */
+    .slot-actions {
+        position: absolute;
+        bottom: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        border-radius: 3px;
+        padding: 0.5rem;
+        box-shadow: var(--fm-shadow-xl);
+        border: 1px solid var(--fm-border-light);
+        display: none;
+        flex-direction: column;
+        gap: 0.25rem;
+        z-index: 1000;
+        min-width: 150px;
+        pointer-events: auto;
+    }
+    
+    .parking-slot:hover {
+        z-index: 999;
+    }
+    
+    .parking-slot:hover .slot-actions {
+        display: flex;
+        animation: fadeInUp 0.2s ease;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    }
+    
+    .action-btn {
+        padding: 0.65rem 1rem;
+        border: none;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--fm-transition-fast);
+        text-align: center;
+        background: white;
+        color: var(--fm-gray-700);
+        width: 100%;
+        z-index: 1001;
+        position: relative;
+    }
+    
+    .action-btn:hover {
+        background: var(--fm-gray-100);
+    }
+    
+    .action-btn:active {
+        transform: scale(0.98);
+    }
+    
+    .action-btn.action-maintenance {
+        color: var(--fm-warning);
+    }
+    
+    .action-btn.action-maintenance:hover {
+        background: var(--fm-warning);
+        color: white;
+    }
+    
+    .action-btn.action-available {
+        color: var(--fm-success);
+    }
+    
+    .action-btn.action-available:hover {
+        background: var(--fm-success);
+        color: white;
+    }
+    
+    /* Toast Notifications */
+    .toast-container {
+        position: fixed;
+        top: 5rem;
+        right: 2rem;
+        z-index: 10000;
+    }
+    
+    .toast {
+        background: white;
+        border-radius: var(--fm-radius-md);
+        padding: 1rem 1.25rem;
+        box-shadow: var(--fm-shadow-xl);
+        border-left: 4px solid;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 300px;
+        margin-bottom: 1rem;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .toast.success {
+        border-left-color: var(--fm-success);
+    }
+    
+    .toast.error {
+        border-left-color: var(--fm-danger);
+    }
+    
+    .toast-icon {
+        font-size: 1.25rem;
+    }
+    
+    .toast.success .toast-icon {
+        color: var(--fm-success);
+    }
+    
+    .toast.error .toast-icon {
+        color: var(--fm-danger);
+    }
+    
+    .toast-content {
+        flex: 1;
+    }
+    
+    .toast-title {
+        font-weight: 600;
+        color: var(--fm-gray-800);
+        font-size: 0.9rem;
+        margin-bottom: 0.15rem;
+    }
+    
+    .toast-message {
+        font-size: 0.85rem;
+        color: var(--fm-gray-600);
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(52, 73, 94, 0.7);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    .loading-overlay.show {
+        display: flex;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    .loading-overlay.active { display: flex; }
+    
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Bulk Actions Card -->
+<div class="bulk-actions-card">
+    <div class="bulk-actions-header">
+        <div class="section-icon maintenance-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        <h3>Maintenance Quick Actions</h3>
+    </div>
+    <div class="bulk-actions-group">
+        <input type="text" 
+               id="bulkSlotNumbers" 
+               placeholder="Enter slot numbers (e.g., TW1, C5, L2)">
+        <button class="bulk-action-btn maintenance-btn" onclick="bulkToggleMaintenance()">
+            ⚙️ Mark Maintenance
+        </button>
+        <button class="bulk-action-btn available-btn" onclick="bulkToggleAvailable()">
+            ✓ Mark Available
+        </button>
+    </div>
+</div>
+
+<!-- Parking Slots by Type -->
+<div class="parking-layout-container">
+    {% for type_data in slot_types_data %}
+    <div class="parking-section">
+        <div class="section-header">
+            <div class="section-title">
+                <div class="section-icon {% if type_data.type == 'two_wheeler' %}two-wheeler-icon{% elif type_data.type == 'car' %}cars-icon{% elif type_data.type == 'large' %}large-icon{% elif type_data.type == 'disabled' %}cars-icon{% elif type_data.type == 'vip' %}large-icon{% endif %}">
+                    {% if type_data.type == 'two_wheeler' %}🏍️
+                    {% elif type_data.type == 'car' %}🚗
+                    {% elif type_data.type == 'large' %}🚛
+                    {% elif type_data.type == 'disabled' %}♿
+                    {% elif type_data.type == 'vip' %}⭐
+                    {% endif %}
+                </div>
+                <span>{{ type_data.name }}</span>
+            </div>
+            <div class="section-status">
+                <span class="status-item">✓ {{ type_data.available }} Available</span>
+                <span class="status-item">● {{ type_data.occupied }} Occupied</span>
+                <span class="status-item">⚙ {{ type_data.maintenance }} Maintenance</span>
+            </div>
+        </div>
+        
+        <div class="parking-grid">
+            {% for slot in type_data.slots %}
+            <div class="parking-slot {{ slot.status }}" 
+                 data-slot="{{ slot.slot_number }}" 
+                 data-status="{{ slot.status }}">
+                <div class="slot-icon">
+                    {% if slot.status == 'available' %}🅿️
+                    {% elif slot.status == 'occupied' %}🚗
+                    {% elif slot.status == 'maintenance' %}⚠️
+                    {% endif %}
+                </div>
+                <div class="slot-number">{{ slot.slot_number }}</div>
+                <div class="slot-status">{{ slot.get_status_display }}</div>
+                
+                {% if slot.status != 'occupied' %}
+                <div class="slot-actions">
+                    {% if slot.status == 'maintenance' %}
+                    <button class="action-btn action-available" 
+                            onclick="toggleSlotStatus('{{ slot.slot_number }}', 'available'); event.stopPropagation();">
+                        ✓ Mark Available
+                    </button>
+                    {% else %}
+                    <button class="action-btn action-maintenance" 
+                            onclick="toggleSlotStatus('{{ slot.slot_number }}', 'maintenance'); event.stopPropagation();">
+                        ⚙️ Mark Maintenance
+                    </button>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Toast Notifications Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const iconMap = {
+        'success': 'fa-check-circle',
+        'error': 'fa-exclamation-circle'
+    };
+    
+    const titleMap = {
+        'success': 'Success',
+        'error': 'Error'
+    };
+    
+    toast.innerHTML = `
+        <i class="fas ${iconMap[type]} toast-icon"></i>
+        <div class="toast-content">
+            <div class="toast-title">${titleMap[type]}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideInRight 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+function showLoading(show) {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.toggle('show', show);
+}
+
+async function toggleSlotStatus(slotNumber, newStatus) {
+    showLoading(true);
+    
+    try {
+        const response = await fetch('/api/toggle-maintenance/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                slot_numbers: [slotNumber],
+                action: newStatus
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const statusLabel = newStatus.replace('_', ' ').toUpperCase();
+            showToast(`Slot ${slotNumber} has been marked as ${statusLabel}`, 'success');
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            showToast(data.error || 'Failed to update slot status', 'error');
+        }
+    } catch (error) {
+        showToast('Network error. Please try again.', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function bulkToggleMaintenance() {
+    const input = document.getElementById('bulkSlotNumbers');
+    const slotNumbers = input.value.split(',').map(s => s.trim()).filter(s => s);
+    
+    if (slotNumbers.length === 0) {
+        showToast('Please enter slot numbers', 'error');
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch('/api/toggle-maintenance/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                slot_numbers: slotNumbers,
+                action: 'maintenance'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const count = data.updated || slotNumbers.length;
+            showToast(`Successfully updated ${count} slot(s) to MAINTENANCE status`, 'success');
+            input.value = '';
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showToast(data.error || 'Failed to update slots', 'error');
+        }
+    } catch (error) {
+        showToast('Network error. Please try again.', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function bulkToggleAvailable() {
+    const input = document.getElementById('bulkSlotNumbers');
+    const slotNumbers = input.value.split(',').map(s => s.trim()).filter(s => s);
+    
+    if (slotNumbers.length === 0) {
+        showToast('Please enter slot numbers', 'error');
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch('/api/toggle-maintenance/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                slot_numbers: slotNumbers,
+                action: 'available'
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const count = data.updated || slotNumbers.length;
+            showToast(`Successfully updated ${count} slot(s) to AVAILABLE status`, 'success');
+            input.value = '';
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showToast(data.error || 'Failed to update slots', 'error');
+        }
+    } catch (error) {
+        showToast('Network error. Please try again.', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Auto-refresh every 30 seconds
+setInterval(() => {
+    location.reload();
+}, 30000);
+</script>
+{% endblock %}

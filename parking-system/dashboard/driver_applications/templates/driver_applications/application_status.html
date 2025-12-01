@@ -1,0 +1,423 @@
+{% extends 'driver_applications/public_base.html' %}
+{% load static %}
+
+{% block title %}Application Status - Forbes Marshall{% endblock %}
+
+{% block extra_css %}
+<style>
+    .status-card {
+        background: linear-gradient(135deg, var(--fm-primary) 0%, var(--fm-primary-dark) 100%);
+        color: white;
+        border-radius: var(--fm-radius-lg);
+        padding: 2.5rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: var(--fm-shadow-lg);
+    }
+    
+    .status-badge {
+        font-size: 1.2rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        margin: 1rem 0;
+        font-weight: 600;
+    }
+    
+    .status-pending { background: var(--fm-warning); color: #000; }
+    .status-under_review { background: #17a2b8; }
+    .status-approved { background: var(--fm-success); }
+    .status-rejected { background: var(--fm-danger); }
+    .status-expired { background: var(--fm-gray-600); }
+    
+    .info-section {
+        background: var(--fm-gray-50);
+        border-radius: var(--fm-radius-lg);
+        padding: 1.75rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--fm-border-light);
+    }
+    
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.625rem 0;
+        border-bottom: 1px solid var(--fm-border-light);
+    }
+    
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--fm-gray-700);
+    }
+    
+    .info-value {
+        color: var(--fm-gray-900);
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--fm-border);
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.25rem;
+        top: 0.5rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #007bff;
+        border: 2px solid #fff;
+    }
+    
+    .timeline-content {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .document-preview {
+        display: inline-block;
+        margin: 0.25rem;
+        padding: 0.5rem 1rem;
+        background: #e9ecef;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #495057;
+        font-size: 0.875rem;
+    }
+    
+    .document-preview:hover {
+        background: #dee2e6;
+        text-decoration: none;
+    }
+    
+    .urgency-low { color: #28a745; }
+    .urgency-medium { color: #ffc107; }
+    .urgency-high { color: #fd7e14; }
+    .urgency-emergency { color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Status Header -->
+    <div class="status-card">
+        <h1><i class="fas fa-clipboard-check me-3"></i>Application Status</h1>
+        <div class="status-badge status-{{ application.status }}">
+            {{ application.get_status_display }}
+        </div>
+        <p class="mb-0">Application ID: <strong>{{ application.application_id }}</strong></p>
+        <small>Submitted on {{ application.created_at|date:"M d, Y \a\\t H:i" }}</small>
+    </div>
+    
+    <!-- Status Messages -->
+    {% if application.status == 'approved' %}
+        <div class="alert alert-success border-0 shadow-sm">
+            <h5 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Application Approved!</h5>
+            <p class="mb-2">Your entry application has been approved. Please check the details below:</p>
+            {% if application.approved_entry_slot %}
+                <p class="mb-0"><strong>Assigned Slot:</strong> {{ application.approved_entry_slot }}</p>
+            {% endif %}
+            <p class="mb-0"><strong>Entry Date:</strong> {{ application.requested_entry_date|date:"M d, Y" }} at {{ application.requested_entry_time|time:"H:i" }}</p>
+        </div>
+    {% elif application.status == 'rejected' %}
+        <div class="alert alert-danger border-0 shadow-sm">
+            <h5 class="alert-heading"><i class="fas fa-times-circle me-2"></i>Application Rejected</h5>
+            {% if application.rejection_reason %}
+                <p class="mb-0"><strong>Reason:</strong> {{ application.rejection_reason }}</p>
+            {% endif %}
+        </div>
+    {% elif application.status == 'under_review' %}
+        <div class="alert alert-info border-0 shadow-sm">
+            <h5 class="alert-heading"><i class="fas fa-clock me-2"></i>Under Review</h5>
+            <p class="mb-0">Your application is currently being reviewed by our security team. You will be notified once a decision is made.</p>
+        </div>
+    {% elif application.status == 'pending' %}
+        <div class="alert alert-warning border-0 shadow-sm">
+            <h5 class="alert-heading"><i class="fas fa-hourglass-half me-2"></i>Pending Review</h5>
+            <p class="mb-0">Your application is in queue for review. Processing time varies based on priority level.</p>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Application Details -->
+        <div class="col-lg-8">
+            <!-- Driver Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user me-2"></i>Driver Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-section">
+                        <div class="info-item">
+                            <span class="info-label">Name:</span>
+                            <span class="info-value">{{ application.driver_name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Phone:</span>
+                            <span class="info-value">{{ application.driver_phone }}</span>
+                        </div>
+                        {% if application.driver_email %}
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">{{ application.driver_email }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <span class="info-label">License Number:</span>
+                            <span class="info-value">{{ application.driver_license_number }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-truck me-2"></i>Vehicle Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-section">
+                        <div class="info-item">
+                            <span class="info-label">Vehicle Number:</span>
+                            <span class="info-value"><strong>{{ application.vehicle_number }}</strong></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Model:</span>
+                            <span class="info-value">{{ application.vehicle_model }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Capacity:</span>
+                            <span class="info-value">{{ application.vehicle_capacity }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company & Purpose -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-building me-2"></i>Purpose & Company Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-section">
+                        <div class="info-item">
+                            <span class="info-label">Source Company:</span>
+                            <span class="info-value">{{ application.source_company_name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Destination:</span>
+                            <span class="info-value">{{ application.destination_within_premises }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Material Type:</span>
+                            <span class="info-value">{{ application.get_material_type_display }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Priority:</span>
+                            <span class="info-value urgency-{{ application.urgency }}">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                {{ application.get_urgency_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h6>Material Description:</h6>
+                        <p class="text-muted">{{ application.material_description }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entry Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Entry Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-section">
+                        <div class="info-item">
+                            <span class="info-label">Requested Date:</span>
+                            <span class="info-value">{{ application.requested_entry_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Requested Time:</span>
+                            <span class="info-value">{{ application.requested_entry_time|time:"H:i" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Duration:</span>
+                            <span class="info-value">{{ application.estimated_duration }} minutes</span>
+                        </div>
+                        {% if application.approved_entry_slot %}
+                        <div class="info-item">
+                            <span class="info-label">Approved Slot:</span>
+                            <span class="info-value"><strong>{{ application.approved_entry_slot }}</strong></span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tools me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'driver_applications:apply_entry' %}" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="fas fa-plus me-2"></i>New Application
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                        <i class="fas fa-print me-2"></i>Print Status
+                    </button>
+                    <button onclick="copyToClipboard('{{ application.application_id }}')" class="btn btn-outline-info btn-sm w-100">
+                        <i class="fas fa-copy me-2"></i>Copy Application ID
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-phone me-2"></i>Need Help?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">For questions about your application:</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-phone me-2 text-primary"></i><strong>Security:</strong> +91-20-XXXX-XXXX</li>
+                        <li><i class="fas fa-envelope me-2 text-primary"></i><strong>Email:</strong> security@forbesmarshall.com</li>
+                        <li><i class="fas fa-clock me-2 text-primary"></i><strong>Hours:</strong> 24/7</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Processing Times -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Processing Times
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-success">Low Priority</span>
+                        <small>24 hours</small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-warning">Medium Priority</span>
+                        <small>4-8 hours</small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-danger">High Priority</span>
+                        <small>2 hours</small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-dark">Emergency</span>
+                        <small>Immediate</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    {% if comments %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-comments me-2"></i>Updates & Comments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for comment in comments %}
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <strong>{{ comment.comment_by }}</strong>
+                                    <small class="text-muted">{{ comment.created_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                                <p class="mb-0">{{ comment.comment_text }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success toast
+        const toast = document.createElement('div');
+        toast.className = 'toast align-items-center text-white bg-success border-0';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">Application ID copied to clipboard!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 3000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+
+// Auto-refresh status every 30 seconds if pending/under review
+{% if application.status == 'pending' or application.status == 'under_review' %}
+setInterval(function() {
+    location.reload();
+}, 30000);
+{% endif %}
+</script>
+{% endblock %}

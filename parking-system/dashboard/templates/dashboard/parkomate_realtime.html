@@ -1,0 +1,792 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Real-time Monitoring - Forbes Marshall{% endblock %}
+
+{% block content %}
+<div class="realtime-container">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <h2 class="page-title">
+                    <i class="fas fa-eye me-2"></i>
+                    Real-time Monitoring
+                </h2>
+                <p class="page-subtitle">Live parking status and activity feed</p>
+                <div class="last-updated">
+                    <i class="fas fa-clock me-1"></i>
+                    Last updated: <span id="last-updated">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Stats Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="live-stats-bar">
+                <div class="live-stat">
+                    <div class="live-stat-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="live-stat-content">
+                        <div class="live-stat-number" id="live-total">{{ total_slots|default:"500" }}</div>
+                        <div class="live-stat-label">Total Slots</div>
+                    </div>
+                </div>
+                
+                <div class="live-stat occupied">
+                    <div class="live-stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="live-stat-content">
+                        <div class="live-stat-number" id="live-occupied">{{ occupied_slots|default:"420" }}</div>
+                        <div class="live-stat-label">Occupied</div>
+                    </div>
+                </div>
+                
+                <div class="live-stat available">
+                    <div class="live-stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="live-stat-content">
+                        <div class="live-stat-number" id="live-available">{{ available_slots|default:"80" }}</div>
+                        <div class="live-stat-label">Available</div>
+                    </div>
+                </div>
+                
+                <div class="live-stat info">
+                    <div class="live-stat-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="live-stat-content">
+                        <div class="live-stat-number" id="live-occupancy">{{ occupancy_rate|default:"84.0" }}%</div>
+                        <div class="live-stat-label">Occupancy</div>
+                    </div>
+                </div>
+                
+                <div class="auto-refresh-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="auto-refresh" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">Auto Refresh</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="row">
+        <!-- Live Activity Feed -->
+        <div class="col-lg-6 mb-4">
+            <div class="live-feed-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-stream me-2"></i>
+                        Live Activity Feed
+                    </h5>
+                    <div class="feed-controls">
+                        <button class="btn btn-sm btn-outline-primary" id="pause-feed">
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="clear-feed">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="live-feed" id="live-feed">
+                    <!-- Sample activities -->
+                    <div class="feed-item entry">
+                        <div class="feed-time">14:32:15</div>
+                        <div class="feed-icon">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="feed-content">
+                            <div class="feed-text">Vehicle <strong>MH01AB1234</strong> entered slot <strong>A15</strong></div>
+                            <div class="feed-details">Sedan • Ground Floor</div>
+                        </div>
+                        <div class="feed-status entry">ENTRY</div>
+                    </div>
+                    
+                    <div class="feed-item exit">
+                        <div class="feed-time">14:30:42</div>
+                        <div class="feed-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="feed-content">
+                            <div class="feed-text">Vehicle <strong>KA05CD5678</strong> left slot <strong>B22</strong></div>
+                            <div class="feed-details">SUV • Duration: 3h 45m</div>
+                        </div>
+                        <div class="feed-status exit">EXIT</div>
+                    </div>
+                    
+                    <div class="feed-item entry">
+                        <div class="feed-time">14:28:19</div>
+                        <div class="feed-icon">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="feed-content">
+                            <div class="feed-text">Vehicle <strong>DL07EF9012</strong> entered slot <strong>C08</strong></div>
+                            <div class="feed-details">Two Wheeler • Ground Floor</div>
+                        </div>
+                        <div class="feed-status entry">ENTRY</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current Sessions -->
+        <div class="col-lg-6 mb-4">
+            <div class="sessions-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-users me-2"></i>
+                        Active Sessions
+                    </h5>
+                    <div class="session-count">
+                        <span class="badge bg-primary" id="session-count">420</span>
+                    </div>
+                </div>
+                
+                <div class="sessions-list" id="sessions-list">
+                    <!-- Sample sessions -->
+                    <div class="session-item">
+                        <div class="session-vehicle">
+                            <div class="vehicle-icon sedan">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <div class="vehicle-info">
+                                <div class="vehicle-plate">MH01AB1234</div>
+                                <div class="vehicle-type">Sedan</div>
+                            </div>
+                        </div>
+                        <div class="session-details">
+                            <div class="session-slot">Slot A15</div>
+                            <div class="session-duration">2h 15m</div>
+                        </div>
+                        <div class="session-status active">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="session-item">
+                        <div class="session-vehicle">
+                            <div class="vehicle-icon suv">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="vehicle-info">
+                                <div class="vehicle-plate">GJ09XY5678</div>
+                                <div class="vehicle-type">SUV</div>
+                            </div>
+                        </div>
+                        <div class="session-details">
+                            <div class="session-slot">Slot B08</div>
+                            <div class="session-duration">45m</div>
+                        </div>
+                        <div class="session-status active">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="session-item">
+                        <div class="session-vehicle">
+                            <div class="vehicle-icon two_wheeler">
+                                <i class="fas fa-motorcycle"></i>
+                            </div>
+                            <div class="vehicle-info">
+                                <div class="vehicle-plate">TN03PQ9012</div>
+                                <div class="vehicle-type">Two Wheeler</div>
+                            </div>
+                        </div>
+                        <div class="session-details">
+                            <div class="session-slot">Slot C12</div>
+                            <div class="session-duration">1h 30m</div>
+                        </div>
+                        <div class="session-status active">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Charts -->
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="chart-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Occupancy Trend (Last 24 Hours)
+                    </h5>
+                </div>
+                <div class="chart-container">
+                    <canvas id="occupancy-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 mb-4">
+            <div class="chart-card">
+                <div class="card-header">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Vehicle Distribution
+                    </h5>
+                </div>
+                <div class="chart-container">
+                    <canvas id="vehicle-distribution-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.realtime-container {
+    padding: 20px 0;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.last-updated {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.live-stats-bar {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.live-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.live-stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #7ED321, #65B01A);
+    color: white;
+}
+
+.live-stat.occupied .live-stat-icon { background: linear-gradient(135deg, #dc3545, #c82333); }
+.live-stat.available .live-stat-icon { background: linear-gradient(135deg, #20c997, #1ea584); }
+.live-stat.info .live-stat-icon { background: linear-gradient(135deg, #17a2b8, #138496); }
+
+.live-stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.live-stat-label {
+    color: #6c757d;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.auto-refresh-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+.live-feed-card, .sessions-card, .chart-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+.card-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.card-title {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.feed-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.live-feed {
+    padding: 1rem 1.5rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.feed-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.3s ease;
+}
+
+.feed-item:hover {
+    background-color: #f8f9fa;
+    margin: 0 -1.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.feed-item:last-child {
+    border-bottom: none;
+}
+
+.feed-time {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-family: monospace;
+    min-width: 60px;
+}
+
+.feed-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 1rem;
+    font-size: 1rem;
+}
+
+.feed-item.entry .feed-icon {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    color: #28a745;
+}
+
+.feed-item.exit .feed-icon {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+    color: #dc3545;
+}
+
+.feed-content {
+    flex: 1;
+}
+
+.feed-text {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.feed-details {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.feed-status {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.feed-status.entry {
+    background: #d4edda;
+    color: #28a745;
+}
+
+.feed-status.exit {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.sessions-list {
+    padding: 1rem 1.5rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.session-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.session-item:last-child {
+    border-bottom: none;
+}
+
+.session-vehicle {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.vehicle-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+    color: white;
+}
+
+.vehicle-icon.sedan { background: linear-gradient(135deg, #007bff, #0056b3); }
+.vehicle-icon.suv { background: linear-gradient(135deg, #28a745, #1e7e34); }
+.vehicle-icon.two_wheeler { background: linear-gradient(135deg, #ffc107, #e0a800); }
+.vehicle-icon.truck { background: linear-gradient(135deg, #6f42c1, #5a2d91); }
+
+.vehicle-plate {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.vehicle-type {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: capitalize;
+}
+
+.session-details {
+    text-align: center;
+    margin: 0 1rem;
+}
+
+.session-slot {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.session-duration {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.session-status {
+    color: #28a745;
+    font-size: 1.2rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.chart-container {
+    padding: 1.5rem;
+    height: 300px;
+}
+
+.session-count {
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+    .live-stats-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .live-stat {
+        justify-content: center;
+    }
+    
+    .auto-refresh-toggle {
+        margin: 0;
+        justify-content: center;
+    }
+    
+    .feed-controls {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let autoRefreshEnabled = true;
+let occupancyChart = null;
+let vehicleChart = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize components
+    initializeRealTimeMonitoring();
+    initializeCharts();
+    setupEventHandlers();
+    
+    // Start auto-refresh
+    startAutoRefresh();
+});
+
+function initializeRealTimeMonitoring() {
+    updateLastUpdated();
+    loadLiveData();
+}
+
+function updateLastUpdated() {
+    const now = new Date();
+    document.getElementById('last-updated').textContent = now.toLocaleTimeString();
+}
+
+function loadLiveData() {
+    // Load live stats
+    fetch('/api/parking-status/')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('live-total').textContent = data.total_slots;
+            document.getElementById('live-occupied').textContent = data.occupied_slots;
+            document.getElementById('live-available').textContent = data.available_slots;
+            document.getElementById('live-occupancy').textContent = data.occupancy_rate.toFixed(1) + '%';
+        })
+        .catch(error => console.error('Error loading live data:', error));
+    
+    // Update timestamp
+    updateLastUpdated();
+}
+
+function initializeCharts() {
+    // Occupancy trend chart
+    const occupancyCtx = document.getElementById('occupancy-chart').getContext('2d');
+    occupancyChart = new Chart(occupancyCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 24}, (_, i) => i + ':00'),
+            datasets: [{
+                label: 'Occupancy %',
+                data: [45, 35, 25, 20, 15, 10, 20, 40, 65, 75, 85, 90, 95, 85, 80, 85, 90, 95, 85, 75, 70, 65, 55, 50],
+                borderColor: '#7ED321',
+                backgroundColor: 'rgba(126, 211, 33, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Vehicle distribution chart
+    const vehicleCtx = document.getElementById('vehicle-distribution-chart').getContext('2d');
+    vehicleChart = new Chart(vehicleCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Sedan', 'SUV', 'Two Wheeler', 'Truck'],
+            datasets: [{
+                data: [180, 120, 95, 25],
+                backgroundColor: [
+                    '#007bff',
+                    '#28a745', 
+                    '#ffc107',
+                    '#6f42c1'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function setupEventHandlers() {
+    // Auto-refresh toggle
+    document.getElementById('auto-refresh').addEventListener('change', function() {
+        autoRefreshEnabled = this.checked;
+    });
+    
+    // Feed controls
+    document.getElementById('pause-feed').addEventListener('click', function() {
+        const icon = this.querySelector('i');
+        if (icon.classList.contains('fa-pause')) {
+            icon.classList.remove('fa-pause');
+            icon.classList.add('fa-play');
+            this.innerHTML = '<i class="fas fa-play"></i> Resume';
+        } else {
+            icon.classList.remove('fa-play');
+            icon.classList.add('fa-pause');
+            this.innerHTML = '<i class="fas fa-pause"></i> Pause';
+        }
+    });
+    
+    document.getElementById('clear-feed').addEventListener('click', function() {
+        if (confirm('Clear all feed items?')) {
+            const feed = document.getElementById('live-feed');
+            feed.innerHTML = '<div class="text-center text-muted py-4">Feed cleared</div>';
+        }
+    });
+}
+
+function startAutoRefresh() {
+    setInterval(() => {
+        if (autoRefreshEnabled) {
+            loadLiveData();
+            console.log('Auto-refreshed at', new Date().toLocaleTimeString());
+        }
+    }, 5000); // Refresh every 5 seconds
+}
+
+function addFeedItem(type, message, details) {
+    const feed = document.getElementById('live-feed');
+    const time = new Date().toLocaleTimeString();
+    
+    const feedItem = document.createElement('div');
+    feedItem.className = `feed-item ${type}`;
+    feedItem.innerHTML = `
+        <div class="feed-time">${time}</div>
+        <div class="feed-icon">
+            <i class="fas fa-sign-${type === 'entry' ? 'in' : 'out'}-alt"></i>
+        </div>
+        <div class="feed-content">
+            <div class="feed-text">${message}</div>
+            <div class="feed-details">${details}</div>
+        </div>
+        <div class="feed-status ${type}">${type.toUpperCase()}</div>
+    `;
+    
+    feed.insertBefore(feedItem, feed.firstChild);
+    
+    // Remove old items if more than 20
+    const items = feed.querySelectorAll('.feed-item');
+    if (items.length > 20) {
+        items[items.length - 1].remove();
+    }
+}
+
+// Simulate real-time activity (remove in production)
+setInterval(() => {
+    if (Math.random() > 0.7) {
+        const vehicles = ['MH01AB1234', 'KA05CD5678', 'DL07EF9012', 'GJ09XY5678', 'TN03PQ9012'];
+        const slots = ['A15', 'B22', 'C08', 'D12', 'E05'];
+        const types = ['Sedan', 'SUV', 'Two Wheeler'];
+        
+        const vehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
+        const slot = slots[Math.floor(Math.random() * slots.length)];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const isEntry = Math.random() > 0.5;
+        
+        if (isEntry) {
+            addFeedItem('entry', `Vehicle <strong>${vehicle}</strong> entered slot <strong>${slot}</strong>`, `${type} • Ground Floor`);
+        } else {
+            const duration = Math.floor(Math.random() * 8) + 1;
+            addFeedItem('exit', `Vehicle <strong>${vehicle}</strong> left slot <strong>${slot}</strong>`, `${type} • Duration: ${duration}h ${Math.floor(Math.random() * 60)}m`);
+        }
+    }
+}, 10000); // Add new activity every 10 seconds
+</script>
+{% endblock %}

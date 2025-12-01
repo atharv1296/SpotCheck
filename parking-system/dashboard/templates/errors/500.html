@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ error_code }} - {{ error_title }} | Forbes Marshall SpotCheck</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #003366, #ff6600);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .error-icon {
+            font-size: 5rem;
+            color: #dc3545;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .error-code {
+            font-size: 6rem;
+            font-weight: 700;
+            color: #ff6600;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .action-buttons {
+            margin-top: 2rem;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #003366, #004080);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 51, 102, 0.3);
+            color: white;
+        }
+        
+        .btn-secondary-custom {
+            background: linear-gradient(135deg, #ff6600, #ff8533);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 102, 0, 0.3);
+            color: white;
+        }
+        
+        .support-info {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            color: #888;
+        }
+        
+        .fm-logo {
+            margin-bottom: 1rem;
+        }
+        
+        .retry-counter {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 2rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .error-card {
+                padding: 2rem;
+            }
+            
+            .error-code {
+                font-size: 4rem;
+            }
+            
+            .error-title {
+                font-size: 1.5rem;
+            }
+            
+            .btn-primary-custom,
+            .btn-secondary-custom {
+                display: block;
+                margin: 10px 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-card">
+            <div class="fm-logo">
+                <img src="/static/images/forbes-marshall-logo.svg" alt="Forbes Marshall" style="height: 60px;" onerror="this.style.display='none'">
+            </div>
+            
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            
+            <div class="error-code">{{ error_code }}</div>
+            <h1 class="error-title">{{ error_title }}</h1>
+            <p class="error-message">{{ error_message }}</p>
+            
+            <div class="retry-counter">
+                <p><strong>System Status:</strong> <span id="status">Checking...</span></p>
+                <p><small>Next automatic retry in <span id="countdown">60</span> seconds</small></p>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/" class="btn-primary-custom">
+                    <i class="fas fa-home"></i> Go to Dashboard
+                </a>
+                <button onclick="window.location.reload()" class="btn-secondary-custom">
+                    <i class="fas fa-redo"></i> Try Again
+                </button>
+            </div>
+            
+            <div class="support-info">
+                <p><strong>Forbes Marshall SpotCheck v2.0.0</strong></p>
+                <p>If this problem persists, please contact support at <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+                <p><small>Error occurred at {{ "now"|date:"Y-m-d H:i:s" }}</small></p>
+                <p><small>Error ID: {{ "now"|date:"YmdHis" }}-{{ error_code }}</small></p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let countdown = 60;
+        const countdownElement = document.getElementById('countdown');
+        const statusElement = document.getElementById('status');
+        
+        // Update countdown
+        const countdownTimer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(countdownTimer);
+                statusElement.textContent = 'Retrying...';
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        }, 1000);
+        
+        // Check server status
+        function checkStatus() {
+            fetch('/health/', { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        statusElement.innerHTML = '<span style="color: #28a745;">Server responding</span>';
+                        clearInterval(countdownTimer);
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 2000);
+                    } else {
+                        statusElement.innerHTML = '<span style="color: #dc3545;">Server error</span>';
+                    }
+                })
+                .catch(() => {
+                    statusElement.innerHTML = '<span style="color: #dc3545;">Server unavailable</span>';
+                });
+        }
+        
+        // Check status every 10 seconds
+        checkStatus();
+        setInterval(checkStatus, 10000);
+    </script>
+</body>
+</html>

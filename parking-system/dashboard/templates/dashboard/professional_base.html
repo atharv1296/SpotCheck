@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Forbes Marshall - SpotCheck Pro{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/professional-theme.css' %}">
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🅿️</text></svg>">
+    
+    <style>
+        /* Logout Button Custom Styling */
+        .fm-nav-link.text-danger {
+            transition: all 0.3s ease;
+        }
+        
+        .fm-nav-link.text-danger:hover {
+            background: rgba(220, 53, 69, 0.1) !important;
+            border-left: 4px solid #dc3545 !important;
+            padding-left: 20px !important;
+        }
+        
+        .fm-nav-link.text-danger .fm-nav-icon {
+            color: #dc3545;
+        }
+        
+        .fm-nav-link.text-danger:hover .fm-nav-icon {
+            transform: translateX(5px);
+            transition: transform 0.3s ease;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="fm-header">
+        <div class="fm-header-content">
+            <div class="d-flex align-items-center">
+                <button class="sidebar-toggle-btn me-3" id="sidebarToggle" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="{% url 'parking_app:dashboard' %}" class="fm-logo text-decoration-none">
+                    <div class="fm-logo-icon">
+                        <i class="fas fa-car-side"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">Forbes Marshall</div>
+                        <div class="small text-muted">SpotCheck System</div>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3">
+                <!-- Quick Stats -->
+                <div class="d-none d-lg-flex align-items-center gap-4 me-3">
+                    <div class="text-muted small">
+                        <i class="fas fa-circle text-success me-1"></i>
+                        <span class="fw-medium">System Online</span>
+                    </div>
+                    <div class="text-muted small">
+                        <i class="fas fa-clock me-1"></i>
+                        <span id="currentTime" class="fw-medium"></span>
+                    </div>
+                </div>
+                
+                <!-- Notifications -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell me-1"></i>
+                        <span class="badge bg-danger rounded-pill">3</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg">
+                        <li><h6 class="dropdown-header"><i class="fas fa-bell me-2"></i>Recent Alerts</h6></li>
+                        <li><a class="dropdown-item py-2" href="#">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-exclamation-triangle text-warning me-2 mt-1"></i>
+                                <div>
+                                    <div class="fw-medium">Slot H3 Overstay</div>
+                                    <small class="text-muted">Vehicle exceeds time limit</small>
+                                </div>
+                            </div>
+                        </a></li>
+                        <li><a class="dropdown-item py-2" href="#">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-car text-info me-2 mt-1"></i>
+                                <div>
+                                    <div class="fw-medium">New Vehicle Detected</div>
+                                    <small class="text-muted">Slot S2 - MH12AB1234</small>
+                                </div>
+                            </div>
+                        </a></li>
+                        <li><a class="dropdown-item py-2" href="#">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-tools text-secondary me-2 mt-1"></i>
+                                <div>
+                                    <div class="fw-medium">Maintenance Due</div>
+                                    <small class="text-muted">Camera C3 requires service</small>
+                                </div>
+                            </div>
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center small" href="#"><i class="fas fa-list me-1"></i>View All Notifications</a></li>
+                    </ul>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>
+                        <span class="d-none d-md-inline">{{ user.username|title }}</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg">
+                        <li><h6 class="dropdown-header"><i class="fas fa-user me-2"></i>{{ user.get_full_name|default:user.username }}</h6></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-edit me-2"></i>Profile Settings</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-shield-alt me-2"></i>Security</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>System Settings</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Export Data</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="fm-sidebar" id="sidebar">
+        <div class="fm-sidebar-header">
+            <div class="d-flex align-items-center">
+                <div class="fm-logo-icon me-3">
+                    <i class="fas fa-parking"></i>
+                </div>
+                <div>
+                    <div class="fw-bold fm-text-primary">SpotCheck</div>
+                    <div class="small text-muted">Parking Management</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="fm-nav">
+            <div class="fm-nav-item">
+                <a class="fm-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'parking_app:dashboard' %}">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            
+            <div class="fm-nav-item">
+                <a class="fm-nav-link {% if request.resolver_match.url_name == 'realtime' %}active{% endif %}" href="{% url 'parking_app:realtime' %}">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <span>Live Monitoring</span>
+                </a>
+            </div>
+            
+            <div class="fm-nav-item">
+                <a class="fm-nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}" href="{% url 'parking_app:analytics' %}">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span>Analytics</span>
+                </a>
+            </div>
+            
+            <div class="fm-nav-item">
+                <a class="fm-nav-link" href="#" data-bs-toggle="modal" data-bs-target="#vehicleRegistrationModal">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <span>Register Vehicle</span>
+                </a>
+            </div>
+            
+            <div class="fm-nav-item">
+                <a class="fm-nav-link {% if 'driver_applications' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'driver_applications:applications_dashboard' %}">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <span>Large Vehicle Requests</span>
+                </a>
+            </div>
+            
+            <div class="fm-nav-item">
+                <a class="fm-nav-link {% if request.resolver_match.url_name == 'maintenance_management' %}active{% endif %}" href="{% url 'parking_app:maintenance_management' %}">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <span>Slot Maintenance</span>
+                </a>
+            </div>
+            
+            <!-- Divider -->
+            <div class="fm-divider"></div>
+            
+            <div class="fm-nav-item">
+                <a class="fm-nav-link" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="fm-nav-item">
+                <a class="fm-nav-link" href="#" data-bs-toggle="modal" data-bs-target="#supportModal">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-life-ring"></i>
+                    </div>
+                    <span>Support</span>
+                </a>
+            </div>
+            
+            <!-- Divider -->
+            <div class="fm-divider"></div>
+            
+            <!-- Logout Button -->
+            <div class="fm-nav-item">
+                <a class="fm-nav-link text-danger" href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">
+                    <div class="fm-nav-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Sidebar Footer -->
+        <div class="mt-auto p-4">
+            <div class="fm-card" style="background: linear-gradient(135deg, var(--fm-gray-50), white);">
+                <div class="fm-card-body text-center py-3">
+                    <div class="small fw-medium text-muted mb-1">System Status</div>
+                    <div class="d-flex align-items-center justify-content-center">
+                        <div class="status-indicator me-2"></div>
+                        <span class="small fw-bold text-success">All Systems Online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="fm-main" id="mainContent">
+        <div class="fm-content">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Vehicle Registration Modal -->
+    <div class="modal fade" id="vehicleRegistrationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title mb-0">
+                            <i class="fas fa-car me-2"></i><span id="modalTitle">Check Vehicle</span>
+                        </h5>
+                        <small class="text-muted" id="modalSubtitle">Enter vehicle number to check registration</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Step 1: Check Vehicle Number -->
+                    <div id="step1" class="registration-step">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Vehicle Number</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control form-control-lg" id="vehicleNumberCheck" placeholder="e.g., MH12AB1234" pattern="[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}" required>
+                                <button class="btn btn-primary" type="button" id="checkVehicleBtn">
+                                    <i class="fas fa-search me-2"></i>Check
+                                </button>
+                            </div>
+                            <small class="text-muted">Format: XX00XX0000</small>
+                        </div>
+                        <div id="vehicleCheckResult" class="alert d-none"></div>
+                    </div>
+
+                    <!-- Step 2: Full Registration Form (shown only if vehicle not found) -->
+                    <form id="vehicleRegistrationForm" class="registration-step d-none">
+                        <input type="hidden" id="selectedSlotNumber" name="selectedSlotNumber" />
+                        <input type="hidden" id="existingVehicleId" name="existingVehicleId" />
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Vehicle Number</label>
+                            <input type="text" class="form-control" id="vehicleNumber" name="vehicleNumber" readonly>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Vehicle Type</label>
+                                    <select class="form-select" id="vehicleType" name="vehicleType" required>
+                                        <option value="">Select Type</option>
+                                        <option value="two_wheeler">Two Wheeler</option>
+                                        <option value="car">Car</option>
+                                        <option value="large">Large Vehicle</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Registered State</label>
+                                    <input type="text" class="form-control" id="registeredState" name="registeredState" placeholder="e.g., MH" pattern="^[A-Z]{2}$" maxlength="2" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Owner Name</label>
+                                    <input type="text" class="form-control" id="ownerName" name="ownerName" placeholder="Full Name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Contact Number</label>
+                                    <input type="tel" class="form-control" id="contactNumber" name="contactNumber" placeholder="+91 9876543210" pattern="\+91[0-9]{10}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary d-none" id="assignSlotBtn">
+                        <i class="fas fa-check me-2"></i>Assign Slot
+                    </button>
+                    <button type="submit" class="btn btn-primary d-none" form="vehicleRegistrationForm" id="registerVehicleBtn">
+                        <i class="fas fa-save me-2"></i>Register & Assign
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                
+                // For desktop, adjust main content margin
+                if (window.innerWidth > 992) {
+                    if (sidebar.classList.contains('show')) {
+                        mainContent.classList.add('expanded');
+                    } else {
+                        mainContent.classList.remove('expanded');
+                    }
+                }
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 992) {
+                    if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                        sidebar.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 992) {
+                    sidebar.classList.remove('show');
+                    mainContent.classList.remove('expanded');
+                } else {
+                    sidebar.classList.remove('show');
+                }
+            });
+            
+            // Update current time
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const timeElement = document.getElementById('currentTime');
+                if (timeElement) {
+                    timeElement.textContent = timeString;
+                }
+            }
+            
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Vehicle Registration - Two Step Process
+            const vehicleRegistrationForm = document.getElementById('vehicleRegistrationForm');
+            const registerVehicleBtn = document.getElementById('registerVehicleBtn');
+            const assignSlotBtn = document.getElementById('assignSlotBtn');
+            const checkVehicleBtn = document.getElementById('checkVehicleBtn');
+            const vehicleRegistrationModal = document.getElementById('vehicleRegistrationModal');
+            const step1 = document.getElementById('step1');
+            const vehicleNumberCheckInput = document.getElementById('vehicleNumberCheck');
+            const vehicleCheckResult = document.getElementById('vehicleCheckResult');
+            
+            // Step 1: Check if vehicle exists
+            if (checkVehicleBtn) {
+                checkVehicleBtn.addEventListener('click', function() {
+                    const vehicleNumber = vehicleNumberCheckInput.value.trim().toUpperCase();
+                    const pattern = /^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$/;
+                    
+                    if (!pattern.test(vehicleNumber)) {
+                        vehicleCheckResult.className = 'alert alert-danger';
+                        vehicleCheckResult.textContent = 'Please enter a valid vehicle number (e.g., MH12AB1234)';
+                        vehicleCheckResult.classList.remove('d-none');
+                        return;
+                    }
+                    
+                    checkVehicleBtn.disabled = true;
+                    checkVehicleBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Checking...';
+                    
+                    // Check if vehicle exists in database
+                    fetch('/api/check-vehicle/?vehicle_number=' + encodeURIComponent(vehicleNumber))
+                        .then(r => r.json())
+                        .then(data => {
+                            if (!data.success) {
+                                throw new Error(data.error || 'Failed to check vehicle');
+                            }
+                            
+                            if (data.found && data.vehicle) {
+                                const existingVehicle = data.vehicle;
+                                // Vehicle exists - show success and assign slot button
+                                vehicleCheckResult.className = 'alert alert-success';
+                                vehicleCheckResult.innerHTML = `
+                                    <strong><i class="fas fa-check-circle me-2"></i>Vehicle Found!</strong>
+                                    <div class="mt-2">
+                                        <p class="mb-1"><strong>Owner:</strong> ${existingVehicle.owner_name}</p>
+                                        <p class="mb-1"><strong>Type:</strong> ${existingVehicle.vehicle_type}</p>
+                                        <p class="mb-0"><strong>Contact:</strong> ${existingVehicle.contact_number}</p>
+                                    </div>
+                                `;
+                                vehicleCheckResult.classList.remove('d-none');
+                                assignSlotBtn.classList.remove('d-none');
+                                assignSlotBtn.onclick = function() {
+                                    assignSlotForExistingVehicle(existingVehicle);
+                                };
+                            } else {
+                                // Vehicle not found - show registration form
+                                vehicleCheckResult.className = 'alert alert-warning';
+                                vehicleCheckResult.innerHTML = '<strong><i class="fas fa-exclamation-triangle me-2"></i>Vehicle Not Found</strong><p class="mb-0 mt-2">Please provide vehicle details to register.</p>';
+                                vehicleCheckResult.classList.remove('d-none');
+                                
+                                // Show registration form
+                                setTimeout(() => {
+                                    step1.classList.add('d-none');
+                                    vehicleRegistrationForm.classList.remove('d-none');
+                                    document.getElementById('vehicleNumber').value = vehicleNumber;
+                                    document.getElementById('modalTitle').textContent = 'Register New Vehicle';
+                                    document.getElementById('modalSubtitle').textContent = 'Complete the registration details';
+                                    registerVehicleBtn.classList.remove('d-none');
+                                }, 1500);
+                            }
+                        })
+                        .catch(err => {
+                            vehicleCheckResult.className = 'alert alert-danger';
+                            vehicleCheckResult.textContent = 'Error checking vehicle: ' + err.message;
+                            vehicleCheckResult.classList.remove('d-none');
+                        })
+                        .finally(() => {
+                            checkVehicleBtn.disabled = false;
+                            checkVehicleBtn.innerHTML = '<i class="fas fa-search me-2"></i>Check';
+                        });
+                });
+                
+                // Allow Enter key to trigger check
+                vehicleNumberCheckInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        checkVehicleBtn.click();
+                    }
+                });
+            }
+            
+            // Assign slot for existing vehicle
+            function assignSlotForExistingVehicle(vehicle) {
+                assignSlotBtn.disabled = true;
+                assignSlotBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Assigning...';
+                
+                const payload = {
+                    is_occupied: true,
+                    vehicle_plate: vehicle.license_plate,
+                    vehicle_type: vehicle.vehicle_type,
+                    owner_name: vehicle.owner_name,
+                    contact_number: vehicle.contact_number,
+                    registered_state: vehicle.registered_state
+                };
+                
+                fetch('/api/update-slot/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (!res.success) throw new Error(res.error || 'Failed to assign slot');
+                    alert('✅ Slot assigned successfully to ' + vehicle.license_plate);
+                    const modal = bootstrap.Modal.getInstance(vehicleRegistrationModal);
+                    if (modal) modal.hide();
+                    if (window.loadRealTimeData) window.loadRealTimeData();
+                    if (window.loadParkingSlots) window.loadParkingSlots();
+                })
+                .catch(err => {
+                    alert('Error: ' + err.message);
+                    assignSlotBtn.disabled = false;
+                    assignSlotBtn.innerHTML = '<i class="fas fa-check me-2"></i>Assign Slot';
+                });
+            }
+            
+            // Step 2: Register new vehicle and assign slot
+            if (vehicleRegistrationForm) {
+                vehicleRegistrationForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Disable submit button to prevent double submission
+                    registerVehicleBtn.disabled = true;
+                    registerVehicleBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Registering...';
+                    
+                    // Get form data
+                    const formData = new FormData(vehicleRegistrationForm);
+                    const vehicleData = {
+                        slotNumber: (formData.get('selectedSlotNumber') || '').toUpperCase(),
+                        vehicleNumber: (formData.get('vehicleNumber') || '').toUpperCase(),
+                        vehicleType: formData.get('vehicleType'),
+                        ownerName: formData.get('ownerName'),
+                        contactNumber: formData.get('contactNumber'),
+                        registeredState: (formData.get('registeredState') || '').toUpperCase(),
+                    };
+
+                    // Slot selection is optional; backend will auto-assign if not provided
+                    
+                    // Validate vehicle number format
+                    const vehicleNumberPattern = /^[A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{4}$/;
+                    if (!vehicleNumberPattern.test(vehicleData.vehicleNumber)) {
+                        alert('Please enter a valid vehicle number format (e.g., MH12AB1234)');
+                        resetSubmitButton();
+                        return;
+                    }
+                    
+                    // Validate contact number format
+                    const contactPattern = /^\+91[0-9]{10}$/;
+                    if (!contactPattern.test(vehicleData.contactNumber)) {
+                        alert('Please enter a valid contact number (+91 followed by 10 digits)');
+                        resetSubmitButton();
+                        return;
+                    }
+                    
+                    // Determine vehicle_type payload (map 'car' to 'sedan' for backend compatibility)
+                    let apiVehicleType = vehicleData.vehicleType;
+                    if (apiVehicleType === 'car') apiVehicleType = 'sedan';
+                    if (apiVehicleType === 'two-wheeler') apiVehicleType = 'two_wheeler';
+
+                    // Build payload for slot update + vehicle creation
+                    const payload = {
+                        slot_number: vehicleData.slotNumber || null,
+                        is_occupied: true,
+                        vehicle_plate: vehicleData.vehicleNumber,
+                        vehicle_type: apiVehicleType,
+                        owner_name: vehicleData.ownerName,
+                        contact_number: vehicleData.contactNumber,
+                        registered_state: vehicleData.registeredState,
+                    };
+
+                    fetch('/api/update-slot/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (!res.success) throw new Error(res.error || 'Update failed');
+                        alert('Vehicle assigned and slot updated successfully.');
+                        vehicleRegistrationForm.reset();
+                        const modal = bootstrap.Modal.getInstance(vehicleRegistrationModal);
+                        if (modal) modal.hide();
+                        // refresh if dashboard JS exists
+                        if (window.loadRealTimeData) window.loadRealTimeData();
+                        if (window.loadParkingSlots) window.loadParkingSlots();
+                    })
+                    .catch(err => {
+                        alert('Error: ' + err.message);
+                    })
+                    .finally(() => {
+                        resetSubmitButton();
+                    });
+                });
+                
+                // Reset submit button function
+                function resetSubmitButton() {
+                    registerVehicleBtn.disabled = false;
+                    registerVehicleBtn.innerHTML = '<i class="fas fa-save me-2"></i>Register Vehicle';
+                }
+                
+                // Clear form when modal is hidden
+                vehicleRegistrationModal.addEventListener('hidden.bs.modal', function() {
+                    vehicleRegistrationForm.reset();
+                    resetSubmitButton();
+                    // Reset to step 1
+                    step1.classList.remove('d-none');
+                    vehicleRegistrationForm.classList.add('d-none');
+                    vehicleCheckResult.classList.add('d-none');
+                    vehicleNumberCheckInput.value = '';
+                    assignSlotBtn.classList.add('d-none');
+                    registerVehicleBtn.classList.add('d-none');
+                    document.getElementById('modalTitle').textContent = 'Check Vehicle';
+                    document.getElementById('modalSubtitle').textContent = 'Enter vehicle number to check registration';
+                });
+                
+                // Format vehicle number as user types
+                const vehicleNumberInput = document.getElementById('vehicleNumber');
+                if (vehicleNumberInput) {
+                    vehicleNumberInput.addEventListener('input', function() {
+                        this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                    });
+                }
+                
+                // Format contact number as user types
+                const contactNumberInput = document.getElementById('contactNumber');
+                if (contactNumberInput) {
+                    contactNumberInput.addEventListener('input', function() {
+                        let value = this.value.replace(/[^0-9+]/g, '');
+                        if (!value.startsWith('+91')) {
+                            value = '+91' + value.replace(/^\+?91?/, '');
+                        }
+                        if (value.length > 13) {
+                            value = value.substring(0, 13);
+                        }
+                        this.value = value;
+                    });
+                }
+            }
+            
+            // Expose a global helper to open the modal for a specific slot
+            window.openVehicleRegistrationForSlot = function(slotNumber) {
+                const hidden = document.getElementById('selectedSlotNumber');
+                if (hidden) hidden.value = slotNumber;
+                const label = document.getElementById('selectedSlotLabel');
+                if (label) label.textContent = slotNumber || 'None';
+                const modalEl = document.getElementById('vehicleRegistrationModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                }
+            }
+        });
+    </script>
+    
+    <style>
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--fm-success);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .sidebar-toggle-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--fm-radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--fm-transition-fast);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+    </style>
+    
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js for analytics charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Auto Logout on Inactivity (10 minutes) -->
+    <script>
+        // Session timeout configuration
+        const SESSION_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
+        const WARNING_TIME = 9 * 60 * 1000; // Show warning at 9 minutes
+        
+        let timeoutTimer;
+        let warningTimer;
+        let warningShown = false;
+        
+        // Reset the timeout timers on user activity
+        function resetTimeout() {
+            // Clear existing timers
+            clearTimeout(timeoutTimer);
+            clearTimeout(warningTimer);
+            warningShown = false;
+            
+            // Hide warning if it was shown
+            const warningEl = document.getElementById('sessionWarningToast');
+            if (warningEl) {
+                const toast = bootstrap.Toast.getInstance(warningEl);
+                if (toast) toast.hide();
+            }
+            
+            // Set warning timer (9 minutes)
+            warningTimer = setTimeout(showWarning, WARNING_TIME);
+            
+            // Set logout timer (10 minutes)
+            timeoutTimer = setTimeout(autoLogout, SESSION_TIMEOUT);
+        }
+        
+        // Show warning before auto-logout
+        function showWarning() {
+            if (warningShown) return;
+            warningShown = true;
+            
+            // Create toast if it doesn't exist
+            let warningEl = document.getElementById('sessionWarningToast');
+            if (!warningEl) {
+                const toastHTML = `
+                    <div id="sessionWarningToast" class="toast position-fixed bottom-0 end-0 m-3" role="alert" style="z-index: 9999;">
+                        <div class="toast-header bg-warning text-dark">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong class="me-auto">Session Expiring Soon</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            Your session will expire in 1 minute due to inactivity. 
+                            <br><strong>Move your mouse or click anywhere to stay logged in.</strong>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', toastHTML);
+                warningEl = document.getElementById('sessionWarningToast');
+            }
+            
+            const toast = new bootstrap.Toast(warningEl, { autohide: false });
+            toast.show();
+        }
+        
+        // Auto logout function
+        function autoLogout() {
+            // Show logout message
+            alert('⏱️ Your session has expired due to inactivity.\n\nYou will be redirected to the login page.');
+            
+            // Redirect to logout
+            window.location.href = '{% url "logout" %}';
+        }
+        
+        // Events that indicate user activity
+        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        
+        // Attach event listeners
+        activityEvents.forEach(event => {
+            document.addEventListener(event, resetTimeout, true);
+        });
+        
+        // Initialize on page load
+        resetTimeout();
+        
+        console.log('🔒 Session timeout active: 10 minutes of inactivity will log you out');
+    </script>
+    
+    <!-- Custom JavaScript for theme effects; dashboard-specific logic is in the template -->
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

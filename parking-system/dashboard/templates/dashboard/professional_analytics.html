@@ -1,0 +1,1059 @@
+{% extends 'dashboard/professional_base.html' %}
+{% load static %}
+
+{% block title %}Analytics - Forbes Marshall SpotCheck Pro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: var(--fm-radius-xl);
+        box-shadow: var(--fm-shadow-md);
+        overflow: hidden;
+        transition: all var(--fm-transition-fast);
+    }
+    
+    .chart-container:hover {
+        box-shadow: var(--fm-shadow-lg);
+        transform: translateY(-2px);
+    }
+    
+    .chart-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--fm-border-light);
+        background: var(--fm-gray-50);
+    }
+    
+    .chart-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--fm-gray-800);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .chart-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: var(--fm-radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+        background: var(--fm-primary);
+    }
+    
+    .chart-body {
+        padding: 1.5rem;
+        height: 350px;
+        position: relative;
+    }
+    
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .metric-card {
+        background: white;
+        border-radius: var(--fm-radius-xl);
+        padding: 2rem;
+        box-shadow: var(--fm-shadow-md);
+        transition: all var(--fm-transition-fast);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--fm-primary);
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--fm-shadow-xl);
+    }
+    
+    .metric-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: var(--fm-radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--fm-gray-800);
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .metric-label {
+        font-size: 0.875rem;
+        color: var(--fm-gray-500);
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-change {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .metric-change.positive {
+        color: var(--fm-success);
+    }
+    
+    .metric-change.negative {
+        color: var(--fm-danger);
+    }
+    
+    .date-filter {
+        background: white;
+        border-radius: var(--fm-radius-xl);
+        padding: 1.5rem;
+        box-shadow: var(--fm-shadow-md);
+        margin-bottom: 2rem;
+    }
+    
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--fm-border-medium);
+        border-radius: var(--fm-radius-lg);
+        background: white;
+        color: var(--fm-gray-700);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--fm-transition-fast);
+    }
+    
+    .filter-btn:hover {
+        border-color: var(--fm-primary);
+        color: var(--fm-primary);
+    }
+    
+    .filter-btn.active {
+        background: linear-gradient(135deg, var(--fm-primary), var(--fm-accent));
+        color: white;
+        border-color: var(--fm-primary);
+    }
+    
+    .data-table {
+        background: white;
+        border-radius: var(--fm-radius-xl);
+        box-shadow: var(--fm-shadow-md);
+        overflow: hidden;
+    }
+    
+    .table-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--fm-border-light);
+        background: linear-gradient(135deg, var(--fm-gray-50), white);
+    }
+    
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .custom-table {
+        margin: 0;
+    }
+    
+    .custom-table th {
+        background: var(--fm-gray-100);
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        color: var(--fm-gray-700);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .custom-table td {
+        padding: 1rem;
+        border: none;
+        border-bottom: 1px solid var(--fm-border-light);
+        color: var(--fm-gray-700);
+    }
+    
+    .custom-table tbody tr:hover {
+        background: var(--fm-gray-50);
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--fm-radius-lg);
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .status-active {
+        background: var(--fm-success);
+        color: white;
+    }
+    
+    .status-completed {
+        background: var(--fm-gray-500);
+        color: white;
+    }
+    
+    .status-violation {
+        background: var(--fm-danger);
+        color: white;
+    }
+    
+    @media (max-width: 1200px) {
+        .analytics-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .metrics-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .filter-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-buttons {
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h2 fw-bold fm-text-primary mb-1">Analytics Dashboard</h1>
+        <p class="text-muted mb-0">Comprehensive parking analytics and insights</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="fm-btn fm-btn-secondary fm-btn-sm" onclick="exportData('pdf')">
+            <i class="fas fa-file-pdf me-1"></i> Export PDF
+        </button>
+        <button class="fm-btn fm-btn-primary fm-btn-sm" onclick="exportData('excel')">
+            <i class="fas fa-file-excel me-1"></i> Export Excel
+        </button>
+    </div>
+</div>
+
+<!-- Date Filter -->
+<div class="date-filter fm-fade-in">
+    <div class="filter-group">
+        <div class="fw-semibold fm-text-primary me-3">Time Period:</div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="setDateFilter('today')">Today</button>
+            <button class="filter-btn" onclick="setDateFilter('week')">This Week</button>
+            <button class="filter-btn" onclick="setDateFilter('month')">This Month</button>
+            <button class="filter-btn" onclick="setDateFilter('quarter')">This Quarter</button>
+            <button class="filter-btn" onclick="setDateFilter('year')">This Year</button>
+        </div>
+        <div class="d-flex gap-2 ms-auto">
+            <input type="date" class="fm-form-control" id="startDate" style="width: auto;">
+            <input type="date" class="fm-form-control" id="endDate" style="width: auto;">
+            <button class="fm-btn fm-btn-primary fm-btn-sm" onclick="applyCustomDateRange()">Apply</button>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics -->
+<div class="metrics-grid">
+    <div class="metric-card fm-slide-up">
+        <div class="metric-icon" style="background: var(--fm-primary);">
+            <i class="fas fa-car"></i>
+        </div>
+        <div class="metric-value" id="totalSessions">{{ total_sessions }}</div>
+        <div class="metric-label">Total Parking Sessions</div>
+        <div class="metric-change positive">
+            <i class="fas fa-sync-alt"></i>
+            <span>Live data from Oracle</span>
+        </div>
+    </div>
+    
+    <div class="metric-card fm-slide-up" style="animation-delay: 0.1s;">
+        <div class="metric-icon" style="background: var(--fm-success);">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="metric-value" id="avgDuration">{{ avg_duration }}</div>
+        <div class="metric-label">Average Parking Duration</div>
+        <div class="metric-change positive">
+            <i class="fas fa-sync-alt"></i>
+            <span>Real-time calculation</span>
+        </div>
+    </div>
+    
+    <div class="metric-card fm-slide-up" style="animation-delay: 0.2s;">
+        <div class="metric-icon" style="background: var(--fm-warning);">
+            <i class="fas fa-percentage"></i>
+        </div>
+        <div class="metric-value" id="utilizationRate">{{ utilization_rate }}%</div>
+        <div class="metric-label">Average Utilization Rate</div>
+        <div class="metric-change positive">
+            <i class="fas fa-sync-alt"></i>
+            <span>Dynamic analysis</span>
+        </div>
+    </div>
+    
+    <!-- Revenue metric card removed (Free parking system) -->
+</div>
+
+<!-- Charts Grid -->
+<div class="analytics-grid">
+    <!-- Occupancy Trends -->
+    <div class="chart-container fm-scale-in">
+        <div class="chart-header">
+            <h3 class="chart-title">
+                <div class="chart-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                Occupancy Trends
+            </h3>
+        </div>
+        <div class="chart-body">
+            <canvas id="occupancyChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Vehicle Type Distribution -->
+    <div class="chart-container fm-scale-in" style="animation-delay: 0.1s;">
+        <div class="chart-header">
+            <h3 class="chart-title">
+                <div class="chart-icon">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                Vehicle Type Distribution
+            </h3>
+        </div>
+        <div class="chart-body">
+            <canvas id="vehicleTypeChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Peak Hours Analysis -->
+    <div class="chart-container fm-scale-in" style="animation-delay: 0.2s;">
+        <div class="chart-header">
+            <h3 class="chart-title">
+                <div class="chart-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                Peak Hours Analysis
+            </h3>
+        </div>
+        <div class="chart-body">
+            <canvas id="peakHoursChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Duration Analysis -->
+    <div class="chart-container fm-scale-in" style="animation-delay: 0.3s;">
+        <div class="chart-header">
+            <h3 class="chart-title">
+                <div class="chart-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                Parking Duration Analysis
+            </h3>
+        </div>
+        <div class="chart-body">
+            <canvas id="durationChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Sessions Table -->
+<div class="data-table fm-fade-in">
+    <div class="table-header">
+        <h3 class="chart-title">
+            <div class="chart-icon">
+                <i class="fas fa-list"></i>
+            </div>
+            Recent Parking Sessions
+        </h3>
+    </div>
+    <div class="table-responsive">
+        <table class="table custom-table" id="recent-sessions-table">
+            <thead>
+                <tr>
+                    <th>Vehicle Number</th>
+                    <th>Slot</th>
+                    <th>Type</th>
+                    <th>Entry Time</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="fw-semibold">MH12AB1234</td>
+                    <td>H1</td>
+                    <td>Two Wheeler</td>
+                    <td>09:30 AM</td>
+                    <td>2h 15m</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewDetails('MH12AB1234')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" onclick="extendTime('MH12AB1234')">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fw-semibold">GJ05CD5678</td>
+                    <td>S2</td>
+                    <td>Sedan</td>
+                    <td>08:15 AM</td>
+                    <td>4h 30m</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewDetails('GJ05CD5678')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="generateReceipt('GJ05CD5678')">
+                            <i class="fas fa-receipt"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fw-semibold">KA03UV9012</td>
+                    <td>U1</td>
+                    <td>SUV</td>
+                    <td>10:45 AM</td>
+                    <td>5h 20m</td>
+                    <td><span class="status-badge status-violation">Overstay</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewDetails('KA03UV9012')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="issueFine('KA03UV9012')">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fw-semibold">DL08LV3456</td>
+                    <td>L2</td>
+                    <td>Large Vehicle</td>
+                    <td>07:30 AM</td>
+                    <td>6h 15m</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewDetails('DL08LV3456')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-success" onclick="generateReceipt('DL08LV3456')">
+                            <i class="fas fa-receipt"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fw-semibold">TN07MN7890</td>
+                    <td>H3</td>
+                    <td>Two Wheeler</td>
+                    <td>11:20 AM</td>
+                    <td>1h 40m</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewDetails('TN07MN7890')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" onclick="extendTime('TN07MN7890')">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Chart configurations
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'top',
+            labels: {
+                usePointStyle: true,
+                padding: 20,
+                font: {
+                    family: 'Inter',
+                    size: 12
+                }
+            }
+        }
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            grid: {
+                color: '#f1f5f9'
+            },
+            ticks: {
+                font: {
+                    family: 'Inter',
+                    size: 11
+                }
+            }
+        },
+        x: {
+            grid: {
+                color: '#f1f5f9'
+            },
+            ticks: {
+                font: {
+                    family: 'Inter',
+                    size: 11
+                }
+            }
+        }
+    }
+};
+
+// Global chart variables
+let occupancyChart, vehicleTypeChart, peakHoursChart, durationChart;
+let currentDateRange = '{{ date_range|default:"today" }}';
+
+// Load analytics data from API
+function loadAnalyticsData(range = currentDateRange, startDate = null, endDate = null) {
+    let url = '/api/analytics-data/?range=' + range;
+    if (startDate && endDate) {
+        url += '&start_date=' + startDate + '&end_date=' + endDate;
+    }
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                updateMetrics(data.metrics);
+                updateCharts(data);
+                updateRecentSessionsTable(data.recent_sessions);
+                console.log('✅ Analytics data loaded from Oracle database');
+            } else {
+                throw new Error(data.error || 'Unknown error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error loading analytics data:', error);
+            showToast('danger', 'Data Error', 'Failed to load analytics data: ' + error.message);
+            
+            // Initialize charts with empty data if API fails
+            initializeEmptyCharts();
+        });
+}
+
+// Update metric cards
+function updateMetrics(metrics) {
+    document.getElementById('totalSessions').textContent = metrics.total_sessions.toLocaleString();
+    document.getElementById('avgDuration').textContent = metrics.avg_duration;
+    document.getElementById('utilizationRate').textContent = metrics.avg_utilization + '%';
+}
+
+// Update all charts with new data
+function updateCharts(data) {
+    updateOccupancyChart(data.hourly_occupancy);
+    updateVehicleTypeChart(data.vehicle_distribution);
+    updatePeakHoursChart(data.peak_hours);
+    updateDurationChart(data.duration_analysis);
+}
+
+// Update occupancy trends chart
+function updateOccupancyChart(hourlyData) {
+    const ctx = document.getElementById('occupancyChart').getContext('2d');
+    
+    if (occupancyChart) {
+        occupancyChart.destroy();
+    }
+    
+    occupancyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`),
+            datasets: [{
+                label: 'Occupancy Rate (%)',
+                data: hourlyData,
+                borderColor: '#1a365d',
+                backgroundColor: 'rgba(26, 54, 93, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: chartOptions
+    });
+}
+
+// Update vehicle type distribution chart
+function updateVehicleTypeChart(vehicleData) {
+    const ctx = document.getElementById('vehicleTypeChart').getContext('2d');
+    
+    if (vehicleTypeChart) {
+        vehicleTypeChart.destroy();
+    }
+    
+    const labels = vehicleData.map(item => item.type);
+    const data = vehicleData.map(item => item.count);
+    const colors = ['#10b981', '#805ad5', '#f59e0b', '#ef4444', '#06b6d4'];
+    
+    vehicleTypeChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderWidth: 3,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Update peak hours chart
+function updatePeakHoursChart(peakData) {
+    const ctx = document.getElementById('peakHoursChart').getContext('2d');
+    
+    if (peakHoursChart) {
+        peakHoursChart.destroy();
+    }
+    
+    peakHoursChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: peakData.map(item => item.hour),
+            datasets: [{
+                label: 'Sessions Count',
+                data: peakData.map(item => item.count),
+                backgroundColor: 'rgba(26, 54, 93, 0.8)',
+                borderColor: '#1a365d',
+                borderWidth: 1
+            }]
+        },
+        options: chartOptions
+    });
+}
+
+// Update duration analysis chart
+function updateDurationChart(durationData) {
+    const ctx = document.getElementById('durationChart').getContext('2d');
+    
+    if (durationChart) {
+        durationChart.destroy();
+    }
+    
+    durationChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(durationData),
+            datasets: [{
+                label: 'Number of Sessions',
+                data: Object.values(durationData),
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Update recent sessions table
+function updateRecentSessionsTable(sessions) {
+    const tableBody = document.querySelector('#recent-sessions-table tbody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    sessions.forEach(session => {
+        const row = document.createElement('tr');
+        const statusClass = session.is_active ? 'status-active' : 'status-completed';
+        
+        row.innerHTML = `
+            <td class="fw-semibold">${session.vehicle_number}</td>
+            <td>${session.slot_number}</td>
+            <td>${session.vehicle_type}</td>
+            <td>${session.entry_time}</td>
+            <td>${session.duration}</td>
+            <td><span class="status-badge ${statusClass}">${session.status}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="viewDetails('${session.vehicle_number}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+                ${session.is_active ? `
+                    <button class="btn btn-sm btn-outline-warning" onclick="extendTime('${session.vehicle_number}')">
+                        <i class="fas fa-clock"></i>
+                    </button>
+                ` : `
+                    <button class="btn btn-sm btn-outline-success" onclick="generateReceipt('${session.vehicle_number}')">
+                        <i class="fas fa-receipt"></i>
+                    </button>
+                `}
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+}
+
+// Initialize empty charts when data loading fails
+function initializeEmptyCharts() {
+    try {
+        // Initialize with sample data to show chart structure
+        updateOccupancyChart(Array(24).fill(0));
+        updateVehicleTypeChart([
+            {type: 'Two Wheeler', count: 0},
+            {type: 'Car', count: 0},
+            {type: 'Large Vehicle', count: 0}
+        ]);
+        updatePeakHoursChart(Array.from({length: 24}, (_, i) => ({
+            hour: `${i.toString().padStart(2, '0')}:00`,
+            count: 0
+        })));
+        updateDurationChart({
+            '0-1h': 0,
+            '1-3h': 0,
+            '3-6h': 0,
+            '6+h': 0
+        });
+        console.log('📊 Initialized charts with empty data');
+    } catch (error) {
+        console.error('❌ Error initializing empty charts:', error);
+    }
+}
+
+// Date filter functions (single authoritative implementation)
+function setDateFilter(period) {
+    // Normalize period and remove active class from all buttons
+    const p = String(period || '').toLowerCase();
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+
+    // Map period to text that appears on the button and mark matching button active
+    const mapping = {
+        'today': ['today'],
+        'week': ['week'],
+        'month': ['month'],
+        'quarter': ['quarter'],
+        'year': ['year']
+    };
+
+    const candidates = mapping[p] || [p];
+    const btns = Array.from(document.querySelectorAll('.filter-btn'));
+    const matched = btns.find(b => {
+        const txt = b.textContent.trim().toLowerCase();
+        return candidates.some(c => txt.includes(c));
+    });
+    if (matched) matched.classList.add('active');
+
+    // Update current range and reload data
+    currentDateRange = p || 'today';
+    loadAnalyticsData(currentDateRange);
+    showToast('info', 'Filter Applied', `Showing data for: ${period}`);
+}
+
+function applyCustomDateRange() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (!startDate || !endDate) {
+        showToast('warning', 'Invalid Range', 'Please select both start and end dates');
+        return;
+    }
+
+    if (new Date(startDate) > new Date(endDate)) {
+        showToast('warning', 'Invalid Range', 'Start date must be before end date');
+        return;
+    }
+
+    // Clear active preset buttons when applying custom range
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+
+    currentDateRange = 'custom';
+    loadAnalyticsData('custom', startDate, endDate);
+    showToast('success', 'Custom Range Applied', `Showing data from ${startDate} to ${endDate}`);
+}
+
+// Initialize charts and load data
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default dates
+    const today = new Date();
+    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    document.getElementById('startDate').value = weekAgo.toISOString().split('T')[0];
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+    
+    // Load initial data
+    loadAnalyticsData(currentDateRange);
+    
+    // Auto-refresh every 30 seconds
+    setInterval(() => loadAnalyticsData(currentDateRange), 30000);
+    
+    console.log('🔥 Analytics Dashboard Connected to Live Oracle Database');
+    
+    // Show initial notification
+    setTimeout(() => {
+        showToast('success', 'Live Analytics', 'Real-time data from Oracle database with auto-refresh every 30 seconds');
+    }, 1500);
+});
+
+// Note: filter functions are implemented above (setDateFilter, applyCustomDateRange)
+
+// Export functions (client-side PDF capture + server fallback)
+async function exportData(format) {
+    // Determine selected types and date range
+    const exportTypes = ['sessions'];
+    const params = new URLSearchParams({ format: format, types: exportTypes.join(','), range: currentDateRange });
+
+    if (currentDateRange === 'custom') {
+        const s = document.getElementById('startDate').value;
+        const e = document.getElementById('endDate').value;
+        if (s && e) {
+            params.append('from_date', s);
+            params.append('to_date', e);
+        }
+    }
+
+    // Client-side PDF export: fetch analytics JSON, capture canvases, build print window
+    if (format === 'pdf') {
+        const apiUrl = `/api/analytics-data/?${params.toString()}`;
+        try {
+            const resp = await fetch(apiUrl, { credentials: 'same-origin' });
+            if (!resp.ok) {
+                const txt = await resp.text();
+                try { const j = JSON.parse(txt); showToast('danger','Export Error', j.error || j.message || txt); }
+                catch(e) { showToast('danger','Export Error', txt || `HTTP ${resp.status}`); }
+                return;
+            }
+            const data = await resp.json();
+
+            // Capture chart canvases
+            const chartIds = ['occupancyChart','vehicleTypeChart','peakHoursChart','durationChart'];
+            const images = {};
+            chartIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.toDataURL) {
+                    try { images[id] = el.toDataURL('image/png'); } catch(e) { images[id] = null; }
+                } else if (el && el.querySelector && el.querySelector('canvas')) {
+                    const c = el.querySelector('canvas');
+                    try { images[id] = c.toDataURL('image/png'); } catch(e) { images[id] = null; }
+                } else {
+                    images[id] = null;
+                }
+            });
+
+            // Build printable window and auto-print
+            buildAndPrintReport(data, images);
+        } catch (err) {
+            showToast('danger','Export Error', err.message || String(err));
+        }
+        return;
+    }
+
+    // Fallback: request server-generated file (CSV/PDF)
+    const url = `/api/analytics/export/?${params.toString()}`;
+    try {
+        const resp = await fetch(url, { credentials: 'same-origin' });
+        if (!resp.ok) {
+            const text = await resp.text();
+            try { const j = JSON.parse(text); showToast('danger','Export Error', j.error || j.message || text); }
+            catch(e) { showToast('danger','Export Error', text || `HTTP ${resp.status}`); }
+            return;
+        }
+        const ct = resp.headers.get('content-type') || '';
+        if (ct.includes('application/pdf') || ct.includes('text/csv') || ct.includes('application/octet-stream')) {
+            const blob = await resp.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const ext = format === 'pdf' ? 'pdf' : 'csv';
+            const filename = `analytics_${currentDateRange}_${new Date().toISOString().split('T')[0]}.${ext}`;
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(blobUrl);
+            showToast('success','Export Complete', `Data exported as ${format.toUpperCase()} successfully`);
+        } else {
+            const text = await resp.text();
+            showToast('danger','Export Error', text || 'Unknown response');
+        }
+    } catch (err) {
+        showToast('danger','Export Error', err.message || String(err));
+    }
+}
+
+function buildAndPrintReport(data, images) {
+    const title = `Analytics Report: ${data.date_range?.start || ''} → ${data.date_range?.end || ''}`;
+    const css = `body{font-family:Arial,Helvetica,sans-serif;padding:20px;color:#111} .header{display:flex;justify-content:space-between;align-items:center} .metrics{display:flex;gap:12px;margin-top:12px} .metric{border:1px solid #ddd;padding:8px;border-radius:6px} .chart{margin-top:16px} img.chart-img{width:100%;max-width:900px;height:auto;border:1px solid #e6e6e6;padding:6px;background:white} .print-btn{position:fixed;top:12px;right:12px;padding:8px 12px;background:#003366;color:#fff;border:none;border-radius:4px;cursor:pointer;z-index:9999} @media print{.print-btn{display:none} img.chart-img{max-width:100%}}`;
+
+    let metricsHtml = '';
+    if (data.metrics) {
+        metricsHtml += '<div class="metrics">';
+        for (const [k,v] of Object.entries(data.metrics)) {
+            metricsHtml += `<div class="metric"><strong>${k.replace('_',' ')}</strong><div>${v}</div></div>`;
+        }
+        metricsHtml += '</div>';
+    }
+
+    let chartsHtml = '';
+    const order = ['occupancyChart','vehicleTypeChart','peakHoursChart','durationChart'];
+    order.forEach(id => {
+        if (images[id]) chartsHtml += `<div class="chart"><h4>${id}</h4><img class="chart-img" src="${images[id]}"/></div>`;
+        else chartsHtml += `<div class="chart"><h4>${id}</h4><p><em>Chart not available (canvas may be tainted or not rendered)</em></p></div>`;
+    });
+
+    const autoPrintScript = `
+        <script>
+        (function(){
+            function readyToPrint(){ try{ window.focus(); }catch(e){} setTimeout(function(){ try{ window.print(); }catch(e){} },200); }
+            var imgs = Array.from(document.getElementsByTagName('img'));
+            if (!imgs || imgs.length === 0) { readyToPrint(); return; }
+            var remaining = imgs.length;
+            imgs.forEach(function(img){ if (img.complete) { remaining -= 1; } else { img.addEventListener('load', function(){ remaining -= 1; if (remaining <= 0) readyToPrint(); }); img.addEventListener('error', function(){ remaining -= 1; if (remaining <= 0) readyToPrint(); }); } }); if (remaining <= 0) readyToPrint();
+        })();
+        <\/script>`;
+
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><style>${css}</style></head><body><button class="print-btn" onclick="window.print()">Print / Save as PDF</button><div class="header"><h1>${title}</h1><div>${new Date().toLocaleString()}</div></div>${metricsHtml}<div class="charts">${chartsHtml}</div><hr/><div>Generated by SpotCheck Analytics</div>${autoPrintScript}</body></html>`;
+
+    const win = window.open('', '_blank');
+    if (!win) { showToast('warning','Popup Blocked','Please allow popups for this site and try again.'); return; }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+}
+
+// Table action functions
+function viewDetails(vehicleNumber) {
+    showToast('info', 'Loading Details', `Fetching details for vehicle ${vehicleNumber}`);
+}
+
+function extendTime(vehicleNumber) {
+    showToast('success', 'Time Extended', `Parking time extended for vehicle ${vehicleNumber}`);
+}
+
+function generateReceipt(vehicleNumber) {
+    showToast('success', 'Receipt Generated', `Receipt generated for vehicle ${vehicleNumber}`);
+}
+
+function issueFine(vehicleNumber) {
+    showToast('warning', 'Fine Issued', `Overstay fine issued for vehicle ${vehicleNumber}`);
+}
+
+// Utility function for toasts
+function showToast(type, title, message) {
+    const bgColors = {
+        'success': 'bg-success',
+        'warning': 'bg-warning',
+        'info': 'bg-info',
+        'danger': 'bg-danger'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast position-fixed top-0 end-0 m-4';
+    toast.setAttribute('role', 'alert');
+    toast.style.zIndex = '1060';
+    toast.innerHTML = `
+        <div class="toast-header ${bgColors[type]} text-white">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong class="me-auto">${title}</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+</script>
+{% endblock %}

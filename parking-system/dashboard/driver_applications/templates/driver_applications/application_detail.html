@@ -1,0 +1,842 @@
+{% extends 'dashboard/professional_base.html' %}
+{% load static %}
+
+{% block title %}Review Application - {{ application.driver_name }} - Forbes Marshall{% endblock %}
+
+{% block extra_css %}
+<style>
+    .application-review-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .review-header {
+        background: linear-gradient(135deg, var(--fm-primary) 0%, var(--fm-primary-dark) 100%);
+        color: white;
+        border-radius: var(--fm-radius-lg);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--fm-shadow-xl);
+    }
+    
+    .application-id-badge {
+        background: rgba(255,255,255,0.2);
+        border-radius: 25px;
+        padding: 0.5rem 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+    
+    .status-badge {
+        font-size: 1.1rem;
+        padding: 0.625rem 1.75rem;
+        border-radius: 25px;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-pending { background: var(--fm-warning); color: #000; }
+    .status-under_review { background: #17a2b8; color: #fff; }
+    .status-approved { background: var(--fm-success); color: #fff; }
+    .status-rejected { background: var(--fm-danger); color: #fff; }
+    .status-expired { background: var(--fm-gray-600); color: #fff; }
+    
+    .review-section {
+        background: white;
+        border-radius: var(--fm-radius-lg);
+        box-shadow: var(--fm-shadow-md);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: 1px solid var(--fm-border-light);
+    }
+    
+    .section-header {
+        background: var(--fm-gray-50);
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--fm-border);
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--fm-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-content {
+        padding: 2rem;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .info-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        font-size: 1rem;
+        color: #212529;
+        font-weight: 500;
+    }
+    
+    .document-card {
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .document-card:hover {
+        border-color: #2c5aa0;
+        background: #f8f9ff;
+    }
+    
+    .document-icon {
+        font-size: 2rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+    
+    .document-name {
+        font-size: 0.875rem;
+        color: #495057;
+        font-weight: 500;
+    }
+    
+    .document-size {
+        font-size: 0.75rem;
+        color: #6c757d;
+    }
+    
+
+    
+    .action-panel {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 2rem;
+        position: sticky;
+        top: 2rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-approve {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-approve:hover {
+        background: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-reject {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-reject:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+    
+    .btn-review {
+        background: #17a2b8;
+        color: white;
+    }
+    
+    .btn-review:hover {
+        background: #138496;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+    }
+    
+    .comment-thread {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .comment-item {
+        border-left: 4px solid #2c5aa0;
+        background: #f8f9fa;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .comment-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .comment-author {
+        font-weight: 600;
+        color: #2c5aa0;
+    }
+    
+    .comment-time {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+    
+    .comment-text {
+        color: #495057;
+        line-height: 1.5;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #dee2e6;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.25rem;
+        top: 0.5rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #2c5aa0;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 2px #dee2e6;
+    }
+    
+    .timeline-content {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .form-floating textarea {
+        min-height: 100px;
+    }
+    
+    @media (max-width: 768px) {
+        .review-header {
+            padding: 1.5rem;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-panel {
+            position: static;
+            margin-top: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="fm-page-header">
+    <div class="d-flex align-items-center justify-content-between">
+        <div>
+            <h1 class="fm-page-title">Review Application</h1>
+            <p class="fm-page-subtitle">{{ application.driver_name }} - {{ application.vehicle_number }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'driver_applications:applications_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-print me-1"></i> Print
+            </button>
+        </div>
+    </div>
+</div>
+
+{% if is_final_status %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="fas fa-lock me-2"></i>
+    <strong>Application Status is Final:</strong> This application has been {{ application.status }} and cannot be modified further.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<div class="application-review-container">
+    <!-- Review Header -->
+    <div class="review-header">
+        <div class="application-id-badge">
+            Application ID: {{ application.application_id }}
+        </div>
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="mb-2">{{ application.driver_name }}</h1>
+                <h3 class="mb-3 opacity-75">{{ application.vehicle_number }} - {{ application.source_company_name }}</h3>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="status-badge status-{{ application.status }}">
+                        {{ application.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="h5 mb-1">{{ application.requested_entry_date|date:"M d, Y" }}</div>
+                <div class="opacity-75">{{ application.requested_entry_time|time:"H:i" }}</div>
+                <small class="opacity-50">Submitted {{ application.created_at|timesince }} ago</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Driver Information -->
+            <div class="review-section">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-user text-primary"></i>
+                        Driver Information
+                    </h4>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value">{{ application.driver_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value">
+                                <a href="tel:{{ application.driver_phone }}" class="text-decoration-none">
+                                    {{ application.driver_phone }}
+                                </a>
+                            </div>
+                        </div>
+                        {% if application.driver_email %}
+                        <div class="info-item">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value">
+                                <a href="mailto:{{ application.driver_email }}" class="text-decoration-none">
+                                    {{ application.driver_email }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <div class="info-label">License Number</div>
+                            <div class="info-value">{{ application.driver_license_number }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if application.driver_photo_blob or application.driver_photo_name %}
+                    <div class="mt-4">
+                        <h6 class="mb-3">Driver Photo</h6>
+                        <img src="{% url 'driver_applications:serve_document' application.application_id 'driver_photo' %}" alt="Driver Photo" 
+                             class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        <div class="small text-muted mt-1">{{ application.driver_photo_name }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Driver Documents -->
+                    <div class="mt-4">
+                        <h6 class="mb-3">Driver Documents</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if application.driver_photo_name %}
+                            <a href="{% url 'driver_applications:serve_document' application.application_id 'driver_photo' %}" 
+                               target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-user-circle me-1"></i> Driver Photo
+                            </a>
+                            {% endif %}
+                            {% if application.driver_license_photo_name %}
+                            <a href="{% url 'driver_applications:serve_document' application.application_id 'driver_license_photo' %}" 
+                               target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-id-card me-1"></i> Driver License
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Information -->
+            <div class="review-section">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-truck text-warning"></i>
+                        Vehicle Information
+                    </h4>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Vehicle Number</div>
+                            <div class="info-value">
+                                <strong class="text-primary">{{ application.vehicle_number }}</strong>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Vehicle Model</div>
+                            <div class="info-value">{{ application.vehicle_model }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Vehicle Capacity</div>
+                            <div class="info-value">{{ application.vehicle_capacity }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Vehicle Type</div>
+                            <div class="info-value">{{ application.vehicle_type|title }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company & Purpose -->
+            <div class="review-section">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-building text-info"></i>
+                        Company & Purpose Details
+                    </h4>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Source Company</div>
+                            <div class="info-value">{{ application.source_company_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Company Contact</div>
+                            <div class="info-value">
+                                <a href="tel:{{ application.source_company_contact }}" class="text-decoration-none">
+                                    {{ application.source_company_contact }}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Destination</div>
+                            <div class="info-value">{{ application.destination_within_premises }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Material Type</div>
+                            <div class="info-value">{{ application.get_material_type_display }}</div>
+                        </div>
+                        {% if application.material_weight %}
+                        <div class="info-item">
+                            <div class="info-label">Approximate Weight</div>
+                            <div class="info-value">{{ application.material_weight }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="mb-2">Company Address</h6>
+                        <p class="text-muted">{{ application.source_company_address }}</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="mb-2">Material Description</h6>
+                        <p class="text-muted">{{ application.material_description }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entry Details -->
+            <div class="review-section">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-calendar-alt text-success"></i>
+                        Entry Details
+                    </h4>
+                </div>
+                <div class="section-content">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Requested Date</div>
+                            <div class="info-value">{{ application.requested_entry_date|date:"l, M d, Y" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Requested Time</div>
+                            <div class="info-value">{{ application.requested_entry_time|time:"H:i" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Estimated Duration</div>
+                            <div class="info-value">{{ application.estimated_duration }} minutes</div>
+                        </div>
+                        {% if application.approved_entry_slot %}
+                        <div class="info-item">
+                            <div class="info-label">Approved Slot</div>
+                            <div class="info-value">
+                                <strong class="text-success">{{ application.approved_entry_slot }}</strong>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Required Documents -->
+            <div class="review-section">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-file-alt text-danger"></i>
+                        Required Documents
+                    </h4>
+                </div>
+                <div class="section-content">
+                    <h6 class="mb-3">Vehicle Documents</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        {% if application.vehicle_rc_name %}
+                        <a href="{% url 'driver_applications:serve_document' application.application_id 'vehicle_rc' %}" 
+                           target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-id-card me-1"></i> Vehicle RC
+                        </a>
+                        {% else %}
+                        <span class="btn btn-outline-secondary disabled">
+                            <i class="fas fa-id-card me-1"></i> Vehicle RC (Not uploaded)
+                        </span>
+                        {% endif %}
+                        
+                        {% if application.vehicle_insurance_name %}
+                        <a href="{% url 'driver_applications:serve_document' application.application_id 'vehicle_insurance' %}" 
+                           target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-shield-alt me-1"></i> Insurance
+                        </a>
+                        {% else %}
+                        <span class="btn btn-outline-secondary disabled">
+                            <i class="fas fa-shield-alt me-1"></i> Insurance (Not uploaded)
+                        </span>
+                        {% endif %}
+                        
+                        {% if application.puc_certificate_name %}
+                        <a href="{% url 'driver_applications:serve_document' application.application_id 'puc_certificate' %}" 
+                           target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-leaf me-1"></i> PUC Certificate
+                        </a>
+                        {% else %}
+                        <span class="btn btn-outline-secondary disabled">
+                            <i class="fas fa-leaf me-1"></i> PUC Certificate (Not uploaded)
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <h6 class="mb-3 mt-4">Material Documents</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% if application.material_receipt_name %}
+                        <a href="{% url 'driver_applications:serve_document' application.application_id 'material_receipt' %}" 
+                           target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-receipt me-1"></i> Material Receipt
+                        </a>
+                        {% else %}
+                        <span class="btn btn-outline-secondary disabled">
+                            <i class="fas fa-receipt me-1"></i> Material Receipt (Not uploaded)
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if application.goods_transport_permit_name or application.customs_clearance_name %}
+                    <div class="mt-4">
+                        <h6 class="mb-3">Additional Documents (Optional)</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if application.goods_transport_permit_name %}
+                            <a href="{% url 'driver_applications:serve_document' application.application_id 'goods_transport_permit' %}" 
+                               target="_blank" class="btn btn-outline-success">
+                                <i class="fas fa-truck-moving me-1"></i> Transport Permit
+                            </a>
+                            {% endif %}
+                            
+                            {% if application.customs_clearance_name %}
+                            <a href="{% url 'driver_applications:serve_document' application.application_id 'customs_clearance' %}" 
+                               target="_blank" class="btn btn-outline-success">
+                                <i class="fas fa-globe me-1"></i> Customs Clearance
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Status History -->
+            {% if status_history %}
+            <div class="review-section">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-history text-secondary"></i>
+                        Status History
+                    </h4>
+                </div>
+                <div class="section-content">
+                    <div class="timeline">
+                        {% for history in status_history %}
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>{{ history.previous_status|title }} → {{ history.new_status|title }}</strong>
+                                        <div class="text-muted small">by {{ history.changed_by }}</div>
+                                    </div>
+                                    <small class="text-muted">{{ history.changed_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                                {% if history.reason %}
+                                <p class="mt-2 mb-0 text-muted">{{ history.reason }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Panel -->
+        <div class="col-lg-4">
+            <div class="action-panel">
+                <h5 class="mb-4">
+                    <i class="fas fa-cogs me-2"></i>Review Actions
+                </h5>
+                
+                {% if is_final_status %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This application has been <strong>{{ application.status }}</strong> and is locked from further modifications.
+                </div>
+                {% endif %}
+                
+                <!-- Status Update Form -->
+                <form method="post" id="review-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="review_form" value="1">
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Status</label>
+                        {{ review_form.status }}
+                        {% if is_final_status %}
+                        <div class="form-text text-muted">
+                            <i class="fas fa-lock me-1"></i>Status is final and cannot be changed
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if application.status != 'approved' %}
+                    <div class="mb-4" id="slot-assignment" style="display: none;">
+                        <label class="form-label">Approved Entry Slot</label>
+                        {{ review_form.approved_entry_slot }}
+                        <div class="form-text">Assign a specific parking slot for approved entries</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-4" id="rejection-reason" style="display: none;">
+                        <label class="form-label">Rejection Reason</label>
+                        {{ review_form.rejection_reason }}
+                        <div class="form-text">This will be visible to the applicant</div>
+                    </div>
+                    
+                    {% if not is_final_status %}
+                    <div class="action-buttons">
+                        <button type="submit" class="action-btn btn-approve" id="approve-btn">
+                            <i class="fas fa-check"></i>Update Application
+                        </button>
+                    </div>
+                    {% endif %}
+                </form>
+                
+                <!-- Quick Actions -->
+                <div class="mt-4 pt-4 border-top">
+                    <h6 class="mb-3">Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'driver_applications:applications_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <button onclick="window.print()" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-print me-2"></i>Print Application
+                        </button>
+                        <a href="tel:{{ application.driver_phone }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-phone me-2"></i>Call Driver
+                        </a>
+                        {% if application.driver_email %}
+                        <a href="mailto:{{ application.driver_email }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-envelope me-2"></i>Email Driver
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Application Stats -->
+                <div class="mt-4 pt-4 border-top">
+                    <h6 class="mb-3">Application Info</h6>
+                    <div class="small text-muted">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Submitted:</span>
+                            <span>{{ application.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                        {% if application.reviewed_at %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Last Review:</span>
+                            <span>{{ application.reviewed_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                        {% endif %}
+                        {% if application.reviewed_by %}
+                        <div class="d-flex justify-content-between">
+                            <span>Reviewed By:</span>
+                            <span>{{ application.reviewed_by }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Document Viewer Modal -->
+<div class="modal fade" id="documentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Document Viewer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <iframe id="documentFrame" width="100%" height="500px" style="border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.querySelector('select[name="status"]');
+    const slotAssignment = document.getElementById('slot-assignment');
+    const rejectionReason = document.getElementById('rejection-reason');
+    
+    function toggleFields() {
+        const status = statusSelect.value;
+        
+        // Show/hide slot assignment for approved status
+        if (status === 'approved') {
+            slotAssignment.style.display = 'block';
+        } else {
+            slotAssignment.style.display = 'none';
+        }
+        
+        // Show/hide rejection reason for rejected status
+        if (status === 'rejected') {
+            rejectionReason.style.display = 'block';
+        } else {
+            rejectionReason.style.display = 'none';
+        }
+    }
+    
+    statusSelect.addEventListener('change', toggleFields);
+    toggleFields(); // Initial call
+    
+    // Form submission confirmation
+    document.getElementById('review-form').addEventListener('submit', function(e) {
+        const status = statusSelect.value;
+        let message = '';
+        
+        switch(status) {
+            case 'approved':
+                message = 'Are you sure you want to approve this application?';
+                break;
+            case 'rejected':
+                message = 'Are you sure you want to reject this application?';
+                break;
+            case 'under_review':
+                message = 'Mark this application as under review?';
+                break;
+            default:
+                message = 'Update this application status?';
+        }
+        
+        if (!confirm(message)) {
+            e.preventDefault();
+        }
+    });
+});
+
+function viewDocument(url) {
+    const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+    document.getElementById('documentFrame').src = url;
+    modal.show();
+}
+
+// Auto-save draft comments
+let commentTextarea = document.querySelector('textarea[name="comment_text"]');
+if (commentTextarea) {
+    commentTextarea.addEventListener('input', function() {
+        localStorage.setItem('draft_comment_{{ application.application_id }}', this.value);
+    });
+    
+    // Load draft on page load
+    const draft = localStorage.getItem('draft_comment_{{ application.application_id }}');
+    if (draft) {
+        commentTextarea.value = draft;
+    }
+    
+    // Clear draft when form is submitted
+    document.querySelector('form').addEventListener('submit', function() {
+        localStorage.removeItem('draft_comment_{{ application.application_id }}');
+    });
+}
+</script>
+{% endblock %}

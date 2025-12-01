@@ -1,0 +1,1030 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Forbes Marshall - SpotCheck{% endblock %}
+
+{% block content %}
+<div class="p-2">
+    <!-- Page Header -->
+    <div class="parking-level-header mb-2">
+        <h3 class="level-title primary-text mb-2">Forbes Marshall</h3>
+        <div class="level-stats">
+            <div class="level-stat">
+                <div class="level-stat-number" id="total-vehicles">420</div>
+                <div class="level-stat-label">Total Vehicles</div>
+            </div>
+            <div class="level-stat">
+                <div class="level-stat-number" id="available-spots">80</div>
+                <div class="level-stat-label">Available</div>
+            </div>
+            <div class="level-stat">
+                <div class="level-stat-number">84%</div>
+                <div class="level-stat-label">Occupancy</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions Cards -->
+    <div class="row mb-2">
+        <div class="col-md-4">
+            <div class="info-card h-100" style="padding: 8px; font-size: 0.85rem;">
+                <div class="info-card-header">
+                    <div class="info-card-icon parking-card">
+                        <i class="fas fa-eye"></i>
+                        🚦 Live Monitoring
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="info-card h-100" style="padding: 8px; font-size: 0.85rem;">
+                <div class="info-card-header">
+                    <div class="info-card-icon charging-card">
+                        <i class="fas fa-route"></i>
+                        🅿️ Smart Slot Assignment
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="info-card h-100" style="padding: 8px; font-size: 0.85rem;">
+                <div class="info-card-header">
+                    <div class="info-card-icon payment-card">
+                        <i class="fas fa-shield-alt"></i>
+                        🔒 Security & Analytics
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vehicle Type Selector -->
+    <div class="card mb-2">
+        <div class="card-body py-2">
+            <h6 class="card-title mb-2" style="font-size: 0.9rem;">Select Vehicle Type to View Parking Areas</h6>
+            <div class="vehicle-type-selector">
+                <div class="vehicle-type active" data-vehicle="two-wheeler" onclick="showParkingSection('two-wheeler')">
+                    <i class="fas fa-motorcycle"></i>
+                    <span>Two Wheeler</span>
+                </div>
+                <div class="vehicle-type" data-vehicle="cars" onclick="showParkingSection('cars')">
+                    <i class="fas fa-car"></i>
+                    <span>Cars</span>
+                </div>
+
+                <div class="vehicle-type" data-vehicle="large" onclick="showParkingSection('large')">
+                    <i class="fas fa-truck"></i>
+                    <span>Large</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two Wheeler Parking Section -->
+    <div id="two-wheeler-section" class="parking-section" style="display: block;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="text-light"><i class="fas fa-motorcycle me-1"></i>Two Wheeler Parking Area</h5>
+            <div class="text-light">
+                <span class="me-3">Occupied: <strong>15/25</strong></span>
+                <span>Available: <strong>10</strong></span>
+            </div>
+        </div>
+        <div class="parking-level animate-fade-scale">
+            <div class="parking-lot-grid">
+                <!-- Two Wheeler Parking Spots -->
+                <div class="parking-section-top">
+                    <div class="parking-spot spot-occupied" data-slot="H1">
+                        <div class="vehicle-two-wheeler"></div>
+                        <span class="spot-label">H1</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="H2">
+                        <span class="spot-label">H2</span>
+                    </div>
+                    <div class="parking-spot spot-occupied" data-slot="H3">
+                        <div class="vehicle-two-wheeler"></div>
+                        <span class="spot-label">H3</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="H4">
+                        <span class="spot-label">H4</span>
+                    </div>
+                    <div class="parking-spot spot-occupied" data-slot="H5">
+                        <div class="vehicle-two-wheeler"></div>
+                        <span class="spot-label">H5</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="H6">
+                        <span class="spot-label">H6</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="H7">
+                        <span class="spot-label">H7</span>
+                    </div>
+                </div>
+                
+                <div class="road-lane">
+                    <div class="lane-divider"></div>
+                    <div class="road-arrow left">TWO WHEELER AREA</div>
+                </div>
+                
+                <div class="parking-section-middle">
+                    <div class="parking-spot spot-occupied" data-slot="H8">
+                        <div class="vehicle-two-wheeler"></div>
+                        <span class="spot-label">H8</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="H9">
+                        <span class="spot-label">H9</span>
+                    </div>
+                    <div class="parking-spot spot-occupied" data-slot="H10">
+                        <div class="vehicle-two-wheeler"></div>
+                        <span class="spot-label">H10</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="H11">
+                        <span class="spot-label">H11</span>
+                    </div>
+                    <div class="parking-spot spot-occupied" data-slot="H12">
+                        <div class="vehicle-two-wheeler"></div>
+                        <span class="spot-label">H12</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="H13">
+                        <span class="spot-label">H13</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="H14">
+                        <span class="spot-label">H14</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cars Parking Section -->
+    <div id="cars-section" class="parking-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="text-light"><i class="fas fa-car me-1"></i>Cars Parking Area</h5>
+            <div class="text-light">
+                <span class="me-3">Occupied: <strong>12/20</strong></span>
+                <span>Available: <strong>8</strong></span>
+            </div>
+        </div>
+        <div class="parking-level animate-fade-scale">
+            <div class="parking-lot-grid">
+                <!-- Cars Parking Spots -->
+                <div class="parking-section-top">
+                    <div class="parking-spot spot-occupied" data-slot="S1">
+                        <div class="vehicle-cars"></div>
+                        <span class="spot-label">S1</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="S2">
+                        <span class="spot-label">S2</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="S3">
+                        <span class="spot-label">S3</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="S4">
+                        <span class="spot-label">S4</span>
+                    </div>
+                    <div class="parking-spot spot-occupied" data-slot="S5">
+                        <div class="vehicle-cars"></div>
+                        <span class="spot-label">S5</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="S6">
+                        <span class="spot-label">S6</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="S7">
+                        <span class="spot-label">S7</span>
+                    </div>
+                </div>
+                
+                <div class="road-lane">
+                    <div class="lane-divider"></div>
+                    <div class="road-arrow left">CARS AREA</div>
+                </div>
+                
+                <div class="parking-section-middle">
+                    <div class="parking-spot spot-occupied" data-slot="S8">
+                        <div class="vehicle-cars"></div>
+                        <span class="spot-label">S8</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="S9">
+                        <span class="spot-label">S9</span>
+                    </div>
+                    <div class="parking-spot spot-occupied" data-slot="S10">
+                        <div class="vehicle-cars"></div>
+                        <span class="spot-label">S10</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="S11">
+                        <span class="spot-label">S11</span>
+                    </div>
+                    <div class="parking-spot spot-occupied" data-slot="S12">
+                        <div class="vehicle-cars"></div>
+                        <span class="spot-label">S12</span>
+                    </div>
+                    <div class="parking-spot spot-empty" data-slot="S13">
+                        <span class="spot-label">S13</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Large Vehicle Parking Section -->
+    <div id="large-section" class="parking-section" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="text-light"><i class="fas fa-truck me-1"></i>Large Vehicle Parking Area</h5>
+            <div class="text-light">
+                <span class="me-3">Occupied: <strong>6/10</strong></span>
+                <span>Available: <strong>4</strong></span>
+            </div>
+        </div>
+        
+        <!-- Driver Application Notice -->
+        <div class="alert alert-info border-0 mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="alert-heading mb-1">
+                        <i class="fas fa-info-circle me-2"></i>External Driver Application Required
+                    </h6>
+                    <p class="mb-0">Large vehicles require prior entry approval. External drivers must submit application with required documents.</p>
+                </div>
+                <div>
+                    <a href="{% url 'driver_applications:apply_entry' %}" class="btn btn-primary btn-sm me-2">
+                        <i class="fas fa-plus me-1"></i>New Application
+                    </a>
+                    <a href="{% url 'driver_applications:applications_dashboard' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-list me-1"></i>Manage Applications
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="parking-level animate-fade-scale">
+            <div class="parking-lot-grid">
+                <!-- Large Vehicle Parking with vertical spots -->
+                <div class="parking-section-bottom">
+                    <div class="parking-column">
+                        <div class="parking-spot-vertical spot-occupied" data-slot="L1">
+                            <div class="vehicle-large-vertical"></div>
+                            <span class="spot-label-vertical">L1</span>
+                        </div>
+                        <div class="parking-spot-vertical spot-empty" data-slot="L2">
+                            <span class="spot-label-vertical">L2</span>
+                        </div>
+                    </div>
+                    
+                    <div class="parking-column">
+                        <div class="parking-spot-vertical spot-occupied" data-slot="L3">
+                            <div class="vehicle-large-vertical"></div>
+                            <span class="spot-label-vertical">L3</span>
+                        </div>
+                        <div class="parking-spot-vertical spot-occupied" data-slot="L4">
+                            <div class="vehicle-large-vertical"></div>
+                            <span class="spot-label-vertical">L4</span>
+                        </div>
+                    </div>
+
+                    <div class="road-lane-vertical">
+                        <div class="road-arrow">LARGE VEHICLE AREA</div>
+                    </div>
+
+                    <div class="parking-column">
+                        <div class="parking-spot-vertical spot-occupied" data-slot="L5">
+                            <div class="vehicle-large-vertical"></div>
+                            <span class="spot-label-vertical">L5</span>
+                        </div>
+                        <div class="parking-spot-vertical spot-empty" data-slot="L6">
+                            <span class="spot-label-vertical">L6</span>
+                        </div>
+                    </div>
+                    
+                    <div class="parking-column">
+                        <div class="parking-spot-vertical spot-occupied" data-slot="L7">
+                            <div class="vehicle-large-vertical"></div>
+                            <span class="spot-label-vertical">L7</span>
+                        </div>
+                        <div class="parking-spot-vertical spot-empty" data-slot="L8">
+                            <span class="spot-label-vertical">L8</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+        <!-- Additional Parking Areas -->
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <div class="parking-level">
+                    <h6 class="text-light mb-2">♿ Disabled Parking</h6>
+                    <div class="d-flex gap-3">
+                        <div class="parking-spot spot-occupied" data-slot="D1" style="background-color: #4a90e2;">
+                            <div class="vehicle-icon">
+                                <i class="fas fa-wheelchair text-white"></i>
+                            </div>
+                        </div>
+                        <div class="parking-spot spot-empty" data-slot="D2" style="background-color: #4a90e2; opacity: 0.5;">
+                            <span class="spot-label">D2</span>
+                        </div>
+                        <div class="parking-spot spot-occupied" data-slot="D3" style="background-color: #4a90e2;">
+                            <div class="vehicle-icon">
+                                <i class="fas fa-wheelchair text-white"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="parking-level">
+                    <h6 class="text-light mb-2">👑 VIP/Reserved</h6>
+                    <div class="d-flex gap-3">
+                        <div class="parking-spot spot-occupied" data-slot="V1" style="background-color: #ffd700;">
+                            <div class="vehicle-icon">
+                                <i class="fas fa-crown text-dark"></i>
+                            </div>
+                        </div>
+                        <div class="parking-spot spot-occupied" data-slot="V2" style="background-color: #ffd700;">
+                            <div class="vehicle-icon">
+                                <i class="fas fa-crown text-dark"></i>
+                            </div>
+                        </div>
+                        <div class="parking-spot spot-empty" data-slot="V3" style="background-color: #ffd700; opacity: 0.5;">
+                            <span class="spot-label">V3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Summary -->
+    <div class="row mt-1">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-number">500</div>
+                <div class="stats-label">Total Slots</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-number">420</div>
+                <div class="stats-label">Occupied</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-number">80</div>
+                <div class="stats-label">Available</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-number">84%</div>
+                <div class="stats-label">Occupancy</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Real-time Activity Feed -->
+    <div class="row mt-2">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-activity me-2"></i>Real-time Activity
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3 slide-in-right">
+                        <div class="status-indicator status-online me-3"></div>
+                        <div>
+                            <strong>Vehicle MH12AB1234</strong> entered slot <strong>105</strong>
+                            <div class="text-muted small">2 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3 slide-in-right">
+                        <div class="status-indicator status-warning me-3"></div>
+                        <div>
+                            <strong>Vehicle GJ01CD5678</strong> left slot <strong>208</strong>
+                            <div class="text-muted small">5 minutes ago</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3 slide-in-right">
+                        <div class="status-indicator status-online me-3"></div>
+                        <div>
+                            <strong>Vehicle DL03EF9012</strong> entered slot <strong>104</strong>
+                            <div class="text-muted small">8 minutes ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Quick Stats
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Peak Hour:</span>
+                        <strong class="text-primary-custom">2:00 PM - 3:00 PM</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Avg Duration:</span>
+                        <strong>2h 15m</strong>
+                    </div>
+                    <!-- Revenue display removed (Free parking system) -->
+                    <div class="d-flex justify-content-between">
+                        <span>Violations:</span>
+                        <strong class="text-warning">3</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vehicle Details Modal -->
+<div class="modal fade" id="vehicleDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content theme-card">
+            <div class="modal-header theme-primary-bg text-white">
+                <h5 class="modal-title" id="vehicleModalTitle">
+                    <i class="fas fa-car me-2"></i>Vehicle Details - Slot <span id="modalSlotNumber">-</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body theme-text">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold theme-primary">Vehicle Number:</label>
+                            <div id="modalVehicleNumber" class="theme-accent fs-5 fw-semibold">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold theme-primary">Vehicle Type:</label>
+                            <div id="modalVehicleType" class="theme-text">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold theme-primary">Status:</label>
+                            <div id="modalStatus" class="badge theme-success-bg theme-text">Occupied</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold theme-primary">Entry Time:</label>
+                            <div id="modalEntryTime" class="theme-text">-</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold theme-primary">Duration:</label>
+                            <div id="modalDuration" class="theme-text">-</div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="theme-border">
+                <div class="row">
+                    <div class="col-12">
+                        <label class="form-label fw-bold theme-primary mb-2">Owner Details:</label>
+                        <div class="p-3 rounded theme-card-inner">
+                            <div id="modalOwnerName" class="mb-2 fs-6 fw-semibold theme-text">-</div>
+                            <div id="modalOwnerContact" class="theme-muted small">
+                                <i class="fas fa-phone me-1"></i><span>-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer theme-border-top">
+                <button type="button" class="btn theme-btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <button type="button" class="btn theme-btn-warning" onclick="releaseSlot()">
+                    <i class="fas fa-sign-out-alt me-2"></i>Release Slot
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Button -->
+<button class="fab" data-bs-toggle="modal" data-bs-target="#quickActionsModal">
+    <i class="fas fa-plus"></i>
+</button>
+
+<!-- Quick Actions Modal -->
+<div class="modal fade" id="quickActionsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark-custom">
+            <div class="modal-header border-primary-custom">
+                <h5 class="modal-title">Quick Actions</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-3">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-car me-2"></i>Manual Vehicle Entry
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-tools me-2"></i>Mark Slot for Maintenance
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-ban me-2"></i>Block Slot
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i>Export Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Additional styles for this specific page */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .sidebar-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.show {
+            transform: translateX(0);
+        }
+    }
+    
+    /* Parking Section Styling */
+    .parking-section {
+        transition: opacity 0.3s ease-in-out;
+    }
+    
+    .road-lane-vertical {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #444;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border: 2px dashed #ffd700;
+    }
+    
+    .road-lane-vertical .road-arrow {
+        color: #ffd700;
+        font-weight: bold;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+    
+    /* Compact Dashboard Styling */
+    .level-stats {
+        gap: 15px !important;
+    }
+    
+    .level-stat-number {
+        font-size: 1.5rem !important;
+    }
+    
+    .level-stat-label {
+        font-size: 0.8rem !important;
+    }
+    
+    .vehicle-type-selector {
+        gap: 8px !important;
+    }
+    
+    .vehicle-type {
+        padding: 8px 12px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .vehicle-type i {
+        font-size: 0.9rem !important;
+    }
+    
+    .parking-spot, .parking-spot-vertical {
+        width: 135px !important;
+        height: 105px !important;
+        font-size: 1.2rem !important;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    
+    .parking-spot:hover, .parking-spot-vertical:hover {
+        transform: scale(1.05);
+    }
+    
+    .spot-label, .spot-label-vertical {
+        font-size: 1rem !important;
+        font-weight: bold;
+    }
+    
+    /* Car Image Styling for Occupied Slots */
+    .vehicle-two-wheeler, .vehicle-cars, .vehicle-large-vertical {
+        width: 100%;
+        height: 80%;
+        background-image: url('{% static "img/car.png" %}');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: absolute;
+        top: 10%;
+        left: 0;
+        z-index: 1;
+    }
+    
+    /* Remove old CSS vehicle graphics pseudo-elements */
+    .vehicle-two-wheeler::before, .vehicle-two-wheeler::after,
+    .vehicle-cars::before, .vehicle-cars::after,
+    
+    .vehicle-large-vertical::before, .vehicle-large-vertical::after,
+    
+        display: none !important;
+        content: none !important;
+    }
+    
+    
+        width: 100%;
+        height: 80%;
+        background-image: url('{% static "img/car.png" %}');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: absolute;
+        top: 10%;
+        left: 0;
+        transform: rotate(90deg);
+        z-index: 1;
+    }
+    
+    /* Ensure parking spots have relative positioning for absolute car images */
+    .parking-spot, .parking-spot-vertical {
+        position: relative;
+    }
+    
+    /* Hide spot labels on occupied slots (with cars) */
+    .spot-occupied .spot-label,
+    .spot-occupied .spot-label-vertical {
+        display: none !important;
+    }
+    
+    /* Show spot labels only on empty slots */
+    .spot-empty .spot-label,
+    .spot-empty .spot-label-vertical {
+        position: relative;
+        z-index: 2;
+        background: rgba(255,255,255,0.9);
+        color: #333;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        display: block;
+    }
+    
+    .parking-lot-grid {
+        gap: 15px !important;
+    }
+    
+    .info-card {
+        margin-bottom: 8px !important;
+    }
+    
+    .card-body {
+        padding: 12px !important;
+    }
+    
+    .stats-card {
+        padding: 12px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .stats-number {
+        font-size: 1.3rem !important;
+    }
+    
+    .stats-label {
+        font-size: 0.75rem !important;
+    }
+    
+    /* Special parking areas styling */
+    .vehicle-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        font-size: 1.5rem;
+    }
+    
+    /* Ensure consistent special spot sizing */
+    .parking-spot[style*="background-color"] {
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Show parking section function
+    function showParkingSection(vehicleType) {
+        // Hide all parking sections
+        document.querySelectorAll('.parking-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Show selected parking section
+        const selectedSection = document.getElementById(vehicleType + '-section');
+        if (selectedSection) {
+            selectedSection.style.display = 'block';
+        }
+        
+        // Update active vehicle type selector
+        document.querySelectorAll('.vehicle-type').forEach(type => {
+            type.classList.remove('active');
+            if (type.dataset.vehicle === vehicleType) {
+                type.classList.add('active');
+            }
+        });
+        
+        // Update main stats based on vehicle type
+        updateParkingDataForVehicleType(vehicleType);
+        
+        console.log('Showing parking section for:', vehicleType);
+    }
+    
+    // Initialize on page load (consolidated DOMContentLoaded listener)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Vehicle type selector click handler
+        document.querySelectorAll('.vehicle-type').forEach(type => {
+            type.addEventListener('click', function() {
+                const vehicleType = this.dataset.vehicle;
+                showParkingSection(vehicleType);
+            });
+        });
+        
+        // Parking spot interactions
+        document.querySelectorAll('.parking-spot, .parking-spot-vertical').forEach(spot => {
+            spot.addEventListener('click', function() {
+                const slotNumber = this.dataset.slot;
+                const isOccupied = this.classList.contains('spot-occupied');
+                
+                if (isOccupied) {
+                    showVehicleDetails(slotNumber);
+                } else {
+                    showEmptySlotInfo(slotNumber);
+                }
+            });
+        });
+        
+        // Modal cleanup event listener for vehicle details modal
+        const vehicleModal = document.getElementById('vehicleDetailsModal');
+        if (vehicleModal) {
+            vehicleModal.addEventListener('hidden.bs.modal', function () {
+                // Clean up any remaining event listeners or data
+                if (vehicleModalInstance) {
+                    vehicleModalInstance.dispose();
+                    vehicleModalInstance = null;
+                }
+            });
+        }
+        
+        // Initialize with two wheeler section by default
+        showParkingSection('two_wheeler');
+    });
+    
+    // Function to update parking data based on vehicle type
+    function updateParkingDataForVehicleType(vehicleType) {
+        console.log('Updating parking layout for:', vehicleType);
+        
+        // Update stats based on vehicle type
+        const vehicleStats = {
+            two_wheeler: { total: 25, occupied: 15, available: 10, occupancy: 60 },
+            cars: { total: 20, occupied: 12, available: 8, occupancy: 60 },
+
+            large: { total: 10, occupied: 6, available: 4, occupancy: 60 }
+        };
+        
+        const stats = vehicleStats[vehicleType] || vehicleStats.two_wheeler;
+        
+        // Update the display stats
+        document.getElementById('total-vehicles').textContent = stats.occupied;
+        document.getElementById('available-spots').textContent = stats.available;
+        
+        // Find and update occupancy percentage
+        const occupancyElements = document.querySelectorAll('.level-stat-number');
+        if (occupancyElements.length >= 3) {
+            occupancyElements[2].textContent = stats.occupancy + '%';
+        }
+        
+        // Update the page title to show current vehicle type
+        const levelTitle = document.querySelector('.level-title');
+        if (levelTitle) {
+            levelTitle.textContent = `Forbes Marshall - ${vehicleType.charAt(0).toUpperCase() + vehicleType.slice(1)} Parking`;
+        }
+        
+        // Here you would typically make an API call to get real parking data
+        // Example: fetchParkingData(vehicleType);
+    }
+    
+    // Parking spot interactions - moved to consolidated DOMContentLoaded listener above
+    
+    // Global modal instance to prevent memory leaks
+    let vehicleModalInstance = null;
+    
+    // Function to show vehicle details in modal
+    function showVehicleDetails(slotNumber) {
+        // Sample vehicle data - in real app, this would come from API
+        const vehicleData = {
+            'H1': { number: 'MH12AB1234', type: 'Two Wheeler', owner: 'John Doe', contact: '+91 9876543210', entry: '09:30 AM', duration: '2h 15m' },
+            'H3': { number: 'GJ05CD5678', type: 'Two Wheeler', owner: 'Jane Smith', contact: '+91 8765432109', entry: '10:45 AM', duration: '1h 30m' },
+            'H5': { number: 'DL08EF9012', type: 'Two Wheeler', owner: 'Mike Johnson', contact: '+91 7654321098', entry: '11:20 AM', duration: '45m' },
+            'S1': { number: 'KA03GH3456', type: 'Cars', owner: 'Sarah Wilson', contact: '+91 6543210987', entry: '08:15 AM', duration: '3h 45m' },
+            'S5': { number: 'TN07IJ7890', type: 'Cars', owner: 'David Brown', contact: '+91 5432109876', entry: '09:00 AM', duration: '3h 00m' },
+            'U1': { number: 'RJ14KL1234', type: 'SUV', owner: 'Lisa Davis', contact: '+91 4321098765', entry: '10:30 AM', duration: '1h 45m' },
+            'U2': { number: 'UP16MN5678', type: 'SUV', owner: 'Chris Taylor', contact: '+91 3210987654', entry: '11:15 AM', duration: '1h 00m' },
+            'L1': { number: 'PB03OP9012', type: 'Large Vehicle', owner: 'Robert Lee', contact: '+91 2109876543', entry: '07:45 AM', duration: '4h 30m' },
+            'L3': { number: 'HR05QR3456', type: 'Large Vehicle', owner: 'Emily White', contact: '+91 1098765432', entry: '08:30 AM', duration: '3h 45m' },
+            'L4': { number: 'AP07ST7890', type: 'Large Vehicle', owner: 'James Green', contact: '+91 0987654321', entry: '09:15 AM', duration: '3h 00m' }
+        };
+        
+        const vehicle = vehicleData[slotNumber] || {
+            number: 'Unknown',
+            type: 'Unknown',
+            owner: 'Unknown',
+            contact: 'N/A',
+            entry: 'Unknown',
+            duration: 'Unknown'
+        };
+        
+        // Update modal content
+        document.getElementById('modalSlotNumber').textContent = slotNumber;
+        document.getElementById('modalVehicleNumber').textContent = vehicle.number;
+        document.getElementById('modalVehicleType').textContent = vehicle.type;
+        document.getElementById('modalEntryTime').textContent = vehicle.entry;
+        document.getElementById('modalDuration').textContent = vehicle.duration;
+        document.getElementById('modalOwnerName').textContent = vehicle.owner;
+        document.getElementById('modalOwnerContact').textContent = vehicle.contact;
+        
+        // Get or create modal instance
+        const modalElement = document.getElementById('vehicleDetailsModal');
+        if (vehicleModalInstance) {
+            vehicleModalInstance.dispose();
+        }
+        vehicleModalInstance = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: true
+        });
+        vehicleModalInstance.show();
+    }
+    
+    // Function to show empty slot info
+    function showEmptySlotInfo(slotNumber) {
+        alert(`Slot ${slotNumber} is available for parking.`);
+    }
+    
+    // Function to release slot
+    function releaseSlot() {
+        const slotNumber = document.getElementById('modalSlotNumber').textContent;
+        
+        // Show success message with better UX
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed';
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1060; max-width: 350px;';
+        alertDiv.innerHTML = `
+            <i class="fas fa-check-circle me-2"></i>
+            Slot ${slotNumber} has been released successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alertDiv);
+        
+        // Auto-remove alert after 3 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 3000);
+        
+        // Hide modal properly
+        if (vehicleModalInstance) {
+            vehicleModalInstance.hide();
+        }
+        
+        // In real app, you would make API call to release the slot
+        // updateSlotStatus(slotNumber, 'available');
+    }
+    
+    function showSlotDetails(slotNumber, isOccupied) {
+        const modal = new bootstrap.Modal(document.createElement('div'));
+        
+        // Create modal content
+        const modalContent = `
+            <div class="modal fade" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content bg-dark-custom">
+                        <div class="modal-header border-primary-custom">
+                            <h5 class="modal-title">Slot ${slotNumber}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> ${isOccupied ? 'Occupied' : 'Available'}</p>
+                                    <p><strong>Type:</strong> Standard</p>
+                                    <p><strong>Level:</strong> 1</p>
+                                    ${isOccupied ? '<p><strong>Vehicle:</strong> MH12AB1234</p>' : ''}
+                                    ${isOccupied ? '<p><strong>Entry Time:</strong> 2:30 PM</p>' : ''}
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="parking-slot ${isOccupied ? 'slot-occupied' : 'slot-available'}" style="width: 100px; height: 150px; margin: 0 auto;">
+                                        ${isOccupied ? '<div class="vehicle-icon"><i class="fas fa-car"></i></div>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            ${isOccupied ? '<button class="btn btn-warning">Send Exit Notification</button>' : '<button class="btn btn-primary">Reserve Slot</button>'}
+                            <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalContent);
+        const modalElement = document.body.lastElementChild;
+        const bsModal = new bootstrap.Modal(modalElement);
+        bsModal.show();
+        
+        // Clean up when modal is hidden
+        modalElement.addEventListener('hidden.bs.modal', () => {
+            modalElement.remove();
+        });
+    }
+    
+    // Modal cleanup event listener - moved to consolidated DOMContentLoaded listener above
+
+    // Auto-refresh parking status every 30 seconds
+    setInterval(() => {
+        // Simulate real-time updates
+        const slots = document.querySelectorAll('.parking-slot[data-slot]');
+        slots.forEach(slot => {
+            // Randomly update some slots (simulation)
+            if (Math.random() < 0.05) { // 5% chance of change
+                const isCurrentlyOccupied = slot.classList.contains('slot-occupied');
+                if (isCurrentlyOccupied) {
+                    slot.classList.remove('slot-occupied');
+                    slot.classList.add('slot-available');
+                    slot.querySelector('.vehicle-icon')?.remove();
+                } else if (Math.random() < 0.3) {
+                    slot.classList.remove('slot-available');
+                    slot.classList.add('slot-occupied');
+                    if (!slot.querySelector('.vehicle-icon')) {
+                        slot.innerHTML += '<div class="vehicle-icon"><i class="fas fa-car"></i></div>';
+                    }
+                }
+                
+                // Add glow effect for changed slots
+                slot.classList.add('glow');
+                setTimeout(() => slot.classList.remove('glow'), 3000);
+            }
+        });
+        
+        // Update stats
+        updateStats();
+    }, 30000);
+    
+    function updateStats() {
+        const totalSlots = document.querySelectorAll('.parking-slot[data-slot]').length;
+        const occupiedSlots = document.querySelectorAll('.parking-slot.slot-occupied').length;
+        const availableSlots = totalSlots - occupiedSlots;
+        const occupancyRate = Math.round((occupiedSlots / totalSlots) * 100);
+        
+        document.getElementById('total-vehicles').textContent = occupiedSlots;
+        document.getElementById('available-spots').textContent = availableSlots;
+        
+        // Update sidebar occupancy
+        document.querySelector('.location-item.active .location-stats span:first-child').textContent = `${occupiedSlots}/${totalSlots}`;
+        document.querySelector('.location-item.active .location-stats span:last-child').textContent = `${occupancyRate}% Occupied`;
+        document.querySelector('.location-item.active .occupancy-fill').style.width = occupancyRate + '%';
+    }
+</script>
+{% endblock %}
