@@ -6674,3 +6674,113 @@ INFO 2025-12-01 16:34:40,852 apps 47200 7872 [OK] Model Vehicles: Configuration 
 INFO 2025-12-01 16:34:40,852 apps 47200 7872 [OK] Model Parking Slots: Configuration verified
 INFO 2025-12-01 16:34:40,852 apps 47200 7872 [INFO] Model Parking Sessions: Basic configuration checked
 INFO 2025-12-01 16:34:40,852 apps 47200 7872 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 16:49:08,527 apps 4600 47424 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 16:49:08,528 apps 4600 47424 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 16:49:08,528 apps 4600 47424 [OK] Admin interface customized
+INFO 2025-12-01 16:49:08,528 apps 4600 47424 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 16:49:08,529 apps 4600 47424 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 16:49:08,529 apps 4600 47424 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 16:49:08,529 apps 4600 47424 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 16:49:09,040 apps 28648 48792 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 16:49:09,041 apps 28648 48792 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 16:49:09,041 apps 28648 48792 [OK] Admin interface customized
+INFO 2025-12-01 16:49:09,041 apps 28648 48792 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 16:49:09,041 apps 28648 48792 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 16:49:09,042 apps 28648 48792 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 16:49:09,042 apps 28648 48792 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:06:57,108 apps 47136 47256 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:06:57,109 apps 47136 47256 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:06:57,109 apps 47136 47256 [OK] Admin interface customized
+INFO 2025-12-01 17:06:57,109 apps 47136 47256 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:06:57,110 apps 47136 47256 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:06:57,110 apps 47136 47256 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:06:57,110 apps 47136 47256 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:06:57,614 apps 37904 10780 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:06:57,615 apps 37904 10780 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:06:57,615 apps 37904 10780 [OK] Admin interface customized
+INFO 2025-12-01 17:06:57,616 apps 37904 10780 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:06:57,616 apps 37904 10780 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:06:57,616 apps 37904 10780 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:06:57,616 apps 37904 10780 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:10:44,548 apps 39280 10920 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:10:44,550 apps 39280 10920 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:10:44,550 apps 39280 10920 [OK] Admin interface customized
+INFO 2025-12-01 17:10:44,550 apps 39280 10920 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:10:44,551 apps 39280 10920 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:10:44,551 apps 39280 10920 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:10:44,551 apps 39280 10920 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:10:53,229 apps 11312 32852 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:10:53,230 apps 11312 32852 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:10:53,230 apps 11312 32852 [OK] Admin interface customized
+INFO 2025-12-01 17:10:53,231 apps 11312 32852 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:10:53,231 apps 11312 32852 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:10:53,231 apps 11312 32852 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:10:53,231 apps 11312 32852 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:20:10,026 apps 29052 48876 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:20:10,027 apps 29052 48876 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:20:10,027 apps 29052 48876 [OK] Admin interface customized
+INFO 2025-12-01 17:20:10,027 apps 29052 48876 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:20:10,027 apps 29052 48876 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:20:10,029 apps 29052 48876 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:20:10,029 apps 29052 48876 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:20:35,721 apps 31736 23040 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:20:35,722 apps 31736 23040 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:20:35,722 apps 31736 23040 [OK] Admin interface customized
+INFO 2025-12-01 17:20:35,723 apps 31736 23040 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:20:35,723 apps 31736 23040 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:20:35,723 apps 31736 23040 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:20:35,723 apps 31736 23040 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:25:59,070 signals 31736 22288 Slot L1 is now OCCUPIED
+INFO 2025-12-01 17:25:59,082 signals 31736 22288 New vehicle registered: MH12BN0003 (large)
+INFO 2025-12-01 17:25:59,083 signals 31736 22288    Owner: Atharv Pawar
+INFO 2025-12-01 17:25:59,103 signals 31736 22288 New parking session started: MH12BN0003 in slot L1
+INFO 2025-12-01 17:26:17,267 signals 31736 29788 Slot L1 is now AVAILABLE
+INFO 2025-12-01 17:26:17,273 signals 31736 29788 Parking session ended: MH12BN0003 - Duration: 0:00:18.174294
+INFO 2025-12-01 17:27:02,547 apps 46144 26196 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:27:02,548 apps 46144 26196 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:27:02,549 apps 46144 26196 [OK] Admin interface customized
+INFO 2025-12-01 17:27:02,549 apps 46144 26196 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:27:02,549 apps 46144 26196 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:27:02,549 apps 46144 26196 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:27:02,549 apps 46144 26196 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:30:39,967 apps 25220 12344 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:30:39,968 apps 25220 12344 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:30:39,968 apps 25220 12344 [OK] Admin interface customized
+INFO 2025-12-01 17:30:39,969 apps 25220 12344 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:30:39,969 apps 25220 12344 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:30:39,969 apps 25220 12344 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:30:39,969 apps 25220 12344 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:36:18,905 apps 47688 31964 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:36:18,906 apps 47688 31964 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:36:18,906 apps 47688 31964 [OK] Admin interface customized
+INFO 2025-12-01 17:36:18,906 apps 47688 31964 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:36:18,907 apps 47688 31964 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:36:18,907 apps 47688 31964 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:36:18,907 apps 47688 31964 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:45:41,225 signals 47688 36668 Slot L1 is now OCCUPIED
+INFO 2025-12-01 17:45:41,249 signals 47688 36668 New vehicle registered: MH10BX9098 (large)
+INFO 2025-12-01 17:45:41,249 signals 47688 36668    Owner: Atharv Pawar
+INFO 2025-12-01 17:45:41,252 signals 47688 36668 New parking session started: MH10BX9098 in slot L1
+INFO 2025-12-01 17:46:16,938 signals 47688 13000 Slot L2 is now OCCUPIED
+INFO 2025-12-01 17:46:16,947 signals 47688 13000 Slot L2 is now AVAILABLE
+INFO 2025-12-01 17:47:54,549 apps 48060 41088 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:47:54,550 apps 48060 41088 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:47:54,550 apps 48060 41088 [OK] Admin interface customized
+INFO 2025-12-01 17:47:54,550 apps 48060 41088 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:47:54,550 apps 48060 41088 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:47:54,550 apps 48060 41088 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:47:54,550 apps 48060 41088 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:51:28,298 apps 33676 25752 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:51:28,299 apps 33676 25752 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:51:28,299 apps 33676 25752 [OK] Admin interface customized
+INFO 2025-12-01 17:51:28,299 apps 33676 25752 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:51:28,300 apps 33676 25752 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:51:28,300 apps 33676 25752 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:51:28,300 apps 33676 25752 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!
+INFO 2025-12-01 17:51:28,802 apps 6828 41840 [CAR] Parking App: Initializing Forbes Marshall SpotCheck...
+INFO 2025-12-01 17:51:28,803 apps 6828 41840 [OK] Parking App: Signal handlers loaded successfully
+INFO 2025-12-01 17:51:28,803 apps 6828 41840 [OK] Admin interface customized
+INFO 2025-12-01 17:51:28,803 apps 6828 41840 [OK] Model Vehicles: Configuration verified
+INFO 2025-12-01 17:51:28,804 apps 6828 41840 [OK] Model Parking Slots: Configuration verified
+INFO 2025-12-01 17:51:28,804 apps 6828 41840 [INFO] Model Parking Sessions: Basic configuration checked
+INFO 2025-12-01 17:51:28,804 apps 6828 41840 [SUCCESS] Parking App: Forbes Marshall SpotCheck ready!

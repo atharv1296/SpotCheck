@@ -432,33 +432,88 @@ def update_slot_status(request):
                         vehicle_type = 'large'
                         print(f"INFO: Approved large vehicle request found for {vehicle_plate}. Prioritizing large slot.")
 
+                    # STEP 1: Check if vehicle already registered
                     try:
                         vehicle = Vehicle.objects.get(license_plate=vehicle_plate)
+                        # Vehicle found - proceed to assign slot
+                        
                     except Vehicle.DoesNotExist:
-                        # Determine a valid vehicle_type
-                        # Map provided types and fallback from slot type
-                        vt = None
-                        if vehicle_type in {'two_wheeler', 'sedan', 'suv', 'large'}:
-                            vt = vehicle_type
-                        elif vehicle_type == 'car':
-                            vt = 'sedan'  # normalize 'car' to a valid Vehicle type
+                        # STEP 2: Vehicle not registered - check driver applications
+                        from driver_applications.models import DriverApplication
+                        
+                        driver_app = DriverApplication.objects.filter(
+                            vehicle_number__iexact=vehicle_plate
+                        ).order_by('-created_at').first()
+                        
+                        if driver_app:
+                            # Application exists - check status
+                            if driver_app.status == 'approved':
+                                # APPROVED: Auto-register vehicle from application data
+                                app_vehicle_type = driver_app.vehicle_type.lower()
+                                if app_vehicle_type in {'two_wheeler', 'sedan', 'suv', 'large'}:
+                                    vt = app_vehicle_type
+                                elif app_vehicle_type == 'car':
+                                    vt = 'sedan'
+                                else:
+                                    vt = 'large'
+                                
+                                vehicle = Vehicle.objects.create(
+                                    license_plate=vehicle_plate,
+                                    vehicle_type=vt,
+                                    owner_name=driver_app.driver_name,
+                                    contact_number=driver_app.driver_phone,
+                                    registered_state=''
+                                )
+                                
+                            elif driver_app.status == 'rejected':
+                                # REJECTED: Deny registration and slot assignment
+                                slot.status = 'available'
+                                slot.is_occupied = False
+                                slot.save()
+                                
+                                error_msg = f'Vehicle {vehicle_plate} application was REJECTED.'
+                                if driver_app.rejection_reason:
+                                    error_msg += f' Reason: {driver_app.rejection_reason}'
+                                
+                                return JsonResponse({
+                                    'success': False,
+                                    'error': error_msg
+                                })
+                                
+                            else:  # pending or under_review
+                                # NOT APPROVED: Deny registration and slot assignment
+                                slot.status = 'available'
+                                slot.is_occupied = False
+                                slot.save()
+                                
+                                return JsonResponse({
+                                    'success': False,
+                                    'error': f'Vehicle {vehicle_plate} application is {driver_app.status.upper()}. Only APPROVED applications can register.'
+                                })
                         else:
-                            # derive from slot type: two_wheeler -> two_wheeler, car -> sedan, large -> large
-                            st = (slot.slot_type or '').lower()
-                            vt = 'two_wheeler' if st == 'two_wheeler' else ('large' if st == 'large' else 'sedan')
+                            # STEP 3: No application found - allow manual registration
+                            # Determine a valid vehicle_type
+                            vt = None
+                            if vehicle_type in {'two_wheeler', 'sedan', 'suv', 'large'}:
+                                vt = vehicle_type
+                            elif vehicle_type == 'car':
+                                vt = 'sedan'
+                            else:
+                                st = (slot.slot_type or '').lower()
+                                vt = 'two_wheeler' if st == 'two_wheeler' else ('large' if st == 'large' else 'sedan')
 
-                        # Only keep registered_state if it matches choices, else blank
-                        valid_states = {code for code, _ in Vehicle.STATE_CHOICES}
-                        rs = registered_state if registered_state in valid_states else ''
+                            # Only keep registered_state if it matches choices, else blank
+                            valid_states = {code for code, _ in Vehicle.STATE_CHOICES}
+                            rs = registered_state if registered_state in valid_states else ''
 
-                        # Create new vehicle record
-                        vehicle = Vehicle.objects.create(
-                            license_plate=vehicle_plate,
-                            vehicle_type=vt,
-                            owner_name=owner_name,
+                            # Create new vehicle record
+                            vehicle = Vehicle.objects.create(
+                                license_plate=vehicle_plate,
+                                vehicle_type=vt,
+                                owner_name=owner_name,
                                 contact_number=contact_number,
-                            registered_state=rs,
-                        )
+                                registered_state=rs,
+                            )
                     
                     # PREVENT DUPLICATE SESSIONS: 1) Deactivate any existing active sessions for this slot
                     existing_sessions = ParkingSession.objects.filter(
@@ -582,7 +637,51 @@ def check_vehicle(request):
                 }
             })
         except Vehicle.DoesNotExist:
-            # Vehicle not registered, check for an approved large vehicle application
+            # STEP 1: Vehicle not registered, check driver applications first
+            from driver_applications.models import DriverApplication
+            
+            driver_app = DriverApplication.objects.filter(
+                vehicle_number__iexact=vehicle_number
+            ).order_by('-created_at').first()
+            
+            if driver_app:
+                # Application exists - check status
+                if driver_app.status == 'approved':
+                    # APPROVED: Return vehicle data from application
+                    app_vehicle_type = driver_app.vehicle_type.lower()
+                    if app_vehicle_type not in {'two_wheeler', 'sedan', 'suv', 'large'}:
+                        app_vehicle_type = 'large'
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'found': True,
+                        'from_application': True,
+                        'vehicle': {
+                            'license_plate': vehicle_number,
+                            'vehicle_type': app_vehicle_type,
+                            'owner_name': driver_app.driver_name,
+                            'contact_number': driver_app.driver_phone,
+                            'registered_state': '',
+                        }
+                    })
+                elif driver_app.status == 'rejected':
+                    # REJECTED: Do not allow
+                    error_msg = f'Vehicle application was REJECTED.'
+                    if driver_app.rejection_reason:
+                        error_msg += f' Reason: {driver_app.rejection_reason}'
+                    
+                    return JsonResponse({
+                        'success': False,
+                        'error': error_msg
+                    })
+                else:  # pending or under_review
+                    # NOT APPROVED: Do not allow
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Vehicle application is {driver_app.status.upper()}. Only APPROVED applications can register.'
+                    })
+            
+            # STEP 2: Check for approved large vehicle request (legacy)
             large_request = LargeVehicleRequest.objects.filter(
                 license_plate=vehicle_number,
                 status='approved'
@@ -592,23 +691,23 @@ def check_vehicle(request):
                 # Found an approved application for an unregistered vehicle
                 return JsonResponse({
                     'success': True,
-                    'found': True,  # Treat as found because we have details
-                    'from_application': True,  # Flag to indicate the source is an application
+                    'found': True,
+                    'from_application': True,
                     'vehicle': {
                         'license_plate': large_request.license_plate,
-                        'vehicle_type': 'large',  # From application, it's always large
+                        'vehicle_type': 'large',
                         'owner_name': large_request.owner_name,
                         'contact_number': large_request.contact_number,
                         'registered_state': large_request.registered_state,
                     }
                 })
-            else:
-                # No registered vehicle and no approved application
-                return JsonResponse({
-                    'success': True,
-                    'found': False,
-                    'message': 'Vehicle not registered and no approved application found'
-                })
+            
+            # STEP 3: No registered vehicle and no approved application - allow manual registration
+            return JsonResponse({
+                'success': True,
+                'found': False,
+                'message': 'Vehicle not registered. You can register it manually.'
+            })
         except Exception as e:
             return JsonResponse({
                 'success': False,
