@@ -36,6 +36,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'parking_app.middleware.StaffRequiredMiddleware',  # Check staff status on every request
 ]
 
 ROOT_URLCONF = 'core.urls'

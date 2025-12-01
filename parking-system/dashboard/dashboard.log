@@ -1,15 +1,1 @@
-INFO 2025-12-01 20:09:40,400 autoreload 13324 22244 Watching for file changes with StatReloader
-INFO 2025-12-01 20:09:41,780 basehttp 13324 13076 "GET / HTTP/1.1" 200 116151
-INFO 2025-12-01 20:09:42,174 basehttp 13324 13076 "GET /api/parking-status/ HTTP/1.1" 200 624
-INFO 2025-12-01 20:09:42,177 basehttp 13324 10592 "GET /api/parking-data/ HTTP/1.1" 200 11480
-INFO 2025-12-01 20:09:42,215 basehttp 13324 20416 "GET /api/recent-activity/ HTTP/1.1" 200 1033
-INFO 2025-12-01 20:09:44,789 basehttp 13324 20416 "GET /login/logout/ HTTP/1.1" 302 0
-INFO 2025-12-01 20:09:44,799 basehttp 13324 20416 "GET /login/ HTTP/1.1" 200 10319
-WARNING 2025-12-01 20:09:44,890 basehttp 13324 20416 "GET /static/img/favicon.ico HTTP/1.1" 404 1972
-INFO 2025-12-01 20:09:48,998 basehttp 13324 10592 "POST /login/ HTTP/1.1" 302 0
-INFO 2025-12-01 20:09:49,098 basehttp 13324 10592 "GET / HTTP/1.1" 200 116151
-INFO 2025-12-01 20:09:49,284 basehttp 13324 10592 "GET /api/parking-status/ HTTP/1.1" 200 624
-INFO 2025-12-01 20:09:49,303 basehttp 13324 13076 "GET /api/parking-data/ HTTP/1.1" 200 11480
-INFO 2025-12-01 20:09:49,367 basehttp 13324 12416 "GET /api/recent-activity/ HTTP/1.1" 200 1033
-INFO 2025-12-01 20:09:50,308 basehttp 13324 12416 "GET /maintenance/ HTTP/1.1" 200 92721
-INFO 2025-12-01 20:09:51,686 basehttp 13324 12416 "GET /driver/dashboard/ HTTP/1.1" 200 102562
+INFO 2025-12-01 23:43:01,297 autoreload 11280 11836 Watching for file changes with StatReloader

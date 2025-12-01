@@ -25,6 +25,11 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
+            # Check if user is staff/admin
+            if not user.is_staff:
+                messages.error(request, 'Access denied. Only staff members can login to the system.')
+                return render(request, 'auth/login.html')
+            
             login(request, user)
             
             # Set session expiry based on remember me
