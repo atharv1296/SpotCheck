@@ -111,7 +111,7 @@ class ParkingSession(models.Model):
     # session_id is automatically handled by Django's id field
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)  # vehicle_id (FK)
     parking_slot = models.ForeignKey(ParkingSlot, on_delete=models.CASCADE)  # slot_id (FK)
-    entry_time = models.DateTimeField(auto_now_add=True)  # entrytime
+    entry_time = models.DateTimeField()  # entrytime
     exit_time = models.DateTimeField(null=True, blank=True)  # exittime
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')  # status
     

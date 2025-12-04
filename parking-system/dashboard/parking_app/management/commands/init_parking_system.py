@@ -132,6 +132,7 @@ class Command(BaseCommand):
             session = ParkingSession.objects.create(
                 vehicle=vehicle,
                 parking_slot=slot,
+                entry_time=timezone.now(),
                 is_active=True
             )
             

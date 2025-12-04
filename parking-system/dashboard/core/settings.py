@@ -69,6 +69,7 @@ DATABASES = {
         'OPTIONS': {
             # Modern oracledb driver options
         },
+        'TIME_ZONE': 'Asia/Kolkata',
     }
 }
 

@@ -551,10 +551,12 @@ def update_slot_status(request):
                         })
                     
                     # Create parking session
+                    current_time = timezone.now()
+                    print(f"DEBUG: Creating session with entry_time: {current_time}")
                     ParkingSession.objects.create(
                         vehicle=vehicle,
                         parking_slot=slot,
-                        entry_time=timezone.now(),
+                        entry_time=current_time,
                         status='Active',
                         is_active=True
                     )
