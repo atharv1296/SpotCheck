@@ -287,8 +287,6 @@ class ReviewForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['status'].choices = [
             ('pending', 'Pending Review'),
-            ('under_review', 'Under Review'),
             ('approved', 'Approved'),  
             ('rejected', 'Rejected'),
-            ('expired', 'Expired')
         ]

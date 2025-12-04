@@ -1178,7 +1178,6 @@
                     <th>Entry Time</th>
                     <th>Action</th>
                     <th>Duration</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="activityContent">
@@ -1889,12 +1888,6 @@ function createActivityItemHTML(item) {
         <td><i class="fas fa-clock me-1"></i>${entryTime}</td>
         <td><span class="status-badge ${statusClass}"><i class="fas ${actionIcon} me-1"></i>${statusText}</span></td>
         <td>${duration}</td>
-        <td>
-            <button class="btn btn-sm btn-outline-primary me-1" title="View Details" onclick="showVehicleDetails('${item.slot_number}')">
-                <i class="fas fa-eye"></i>
-            </button>
-            ${contactButton}
-        </td>
     `;
 }
 
